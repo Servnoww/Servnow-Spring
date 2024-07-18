@@ -9,7 +9,7 @@ build/
 /src/main/generated/
 
 ### STS ###
-.apt_generatedgit p
+.apt_generated
 .classpath
 .factorypath
 .project

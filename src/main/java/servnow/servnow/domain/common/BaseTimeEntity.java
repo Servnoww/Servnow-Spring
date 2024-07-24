@@ -1,4 +1,4 @@
-package servnow.servnow.common.domain.common;
+package servnow.servnow.domain.common;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

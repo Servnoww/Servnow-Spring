@@ -1,4 +1,4 @@
-package servnow.servnow.common.domain.tmp.model;
+package servnow.servnow.domain.tmp.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import servnow.servnow.common.domain.common.BaseTimeEntity;
+import servnow.servnow.domain.common.BaseTimeEntity;
 
 @Entity
 @Getter

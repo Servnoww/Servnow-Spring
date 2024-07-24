@@ -5,7 +5,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.common.code.BusinessErrorCode;
 import servnow.servnow.common.exception.BadRequestException;

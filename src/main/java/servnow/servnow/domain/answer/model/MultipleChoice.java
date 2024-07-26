@@ -1,4 +1,4 @@
-package servnow.servnow.domain.question.model;
+package servnow.servnow.domain.answer.model;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

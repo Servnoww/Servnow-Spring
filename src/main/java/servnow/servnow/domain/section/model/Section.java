@@ -1,10 +1,11 @@
-package servnow.servnow.domain.survey.model;
+package servnow.servnow.domain.section.model;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import servnow.servnow.domain.common.BaseTimeEntity;
+import servnow.servnow.domain.survey.model.Survey;
 
 @Entity
 @Getter

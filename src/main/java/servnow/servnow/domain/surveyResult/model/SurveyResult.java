@@ -1,4 +1,4 @@
-package servnow.servnow.domain.answer.model;
+package servnow.servnow.domain.surveyResult.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -9,14 +9,11 @@ import servnow.servnow.domain.common.BaseTimeEntity;
 import servnow.servnow.domain.survey.model.Survey;
 import servnow.servnow.domain.user.model.User;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
-@Table(name = "answer")
+@Table(name = "survey_result")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Answer extends BaseTimeEntity {
+public class SurveyResult extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long answerResultId;

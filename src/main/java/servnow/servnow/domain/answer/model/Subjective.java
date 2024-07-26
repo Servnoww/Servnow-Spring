@@ -6,21 +6,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import servnow.servnow.domain.common.BaseTimeEntity;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
+@Table(name = "subjective")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AnswerResult extends BaseTimeEntity{
+public class Subjective extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long answerId;
+    private Long subjectiveId;
 
     @ManyToOne
-    @JoinColumn(name = "answer_result_id", nullable = false)
-    private Answer answer;
+    @JoinColumn(name = "question_id", nullable = false)
+    private Question question;
 
-    private Long subjectiveId;
-    private Long multipleChoiceId;
+    @Column(nullable = false, length = 500)
+    private String content;
+
+    private Long nextSectionId;
 }

@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import servnow.servnow.domain.common.BaseTimeEntity;
-import servnow.servnow.domain.survey.model.Section;
 
 @Entity
 @Getter

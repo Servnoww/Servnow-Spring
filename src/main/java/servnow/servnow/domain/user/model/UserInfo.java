@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import servnow.servnow.domain.common.BaseTimeEntity;
 
 @Entity
-@Table(name = "user_info")
 @Getter
+@Table(name = "user_info")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserInfo extends BaseTimeEntity {
 

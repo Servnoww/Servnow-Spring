@@ -1,6 +1,7 @@
 package servnow.servnow.domain.user.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Table(name = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
 
@@ -21,20 +23,21 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private String platform;
 
+    @Email
     @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
-    private String platformId;
+    private String id;
+
+    @Column(nullable = false)
+    private String password;
 
     @Column(nullable = false)
     private Integer point;
 
     @Column(nullable = false)
     private Integer answerCount;
-
-    @Column(nullable = false)
-    private String password;
 
     @Column(nullable = false)
     private String role;

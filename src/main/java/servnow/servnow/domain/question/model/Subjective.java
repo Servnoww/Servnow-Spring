@@ -8,6 +8,7 @@ import servnow.servnow.domain.common.BaseTimeEntity;
 
 @Entity
 @Getter
+@Table(name = "subjective")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Subjective extends BaseTimeEntity{
     @Id

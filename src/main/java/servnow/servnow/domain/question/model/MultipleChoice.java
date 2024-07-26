@@ -23,5 +23,5 @@ public class MultipleChoice extends BaseTimeEntity {
     @Column(nullable = false, length = 50)
     private String content;
 
-    private Integer nextSectionNo;
+    private Long nextSectionId;
 }

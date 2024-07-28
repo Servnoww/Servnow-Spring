@@ -1,26 +1,30 @@
-package servnow.servnow.domain.answer.model;
+package servnow.servnow.domain.question.model;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import servnow.servnow.domain.common.BaseTimeEntity;
 
 @Entity
 @Getter
-@Table(name = "subjective")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Subjective extends BaseTimeEntity{
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+public class MultipleChoice {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long subjectiveId;
+    @Column(name = "multiple_choice_id")
+    private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false)
     private String content;
 
-    private Long nextSectionId;
+    private int nextSectionNo;
 }

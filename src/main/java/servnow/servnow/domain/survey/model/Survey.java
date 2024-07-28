@@ -1,25 +1,33 @@
 package servnow.servnow.domain.survey.model;
+
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import servnow.servnow.domain.common.BaseTimeEntity;
+import servnow.servnow.domain.section.model.Section;
+import servnow.servnow.domain.survey.model.enums.CharacterType;
+import servnow.servnow.domain.surveyresult.model.SurveyResult;
 import servnow.servnow.domain.user.model.User;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name = "survey")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Survey extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long surveyId;
+    @Column(name = "survey_id")
+    private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -30,10 +38,7 @@ public class Survey extends BaseTimeEntity{
     private String content;
 
     @Column(nullable = false)
-    private String image;
-
-    @Column(nullable = false)
-    private Integer duration;
+    private int duration;
 
     @Column(nullable = false)
     private String mainColor;
@@ -45,17 +50,19 @@ public class Survey extends BaseTimeEntity{
     private String font;
 
     @Column(nullable = false)
-    private String characterType;
+    @Enumerated(EnumType.STRING)
+    private CharacterType characterType;
 
     private String reward;
-    private Integer rewardCount;
+
+    private int rewardCount;
 
     @Column(nullable = false)
-    private Timestamp expiredAt;
+    private LocalDateTime expiredAt;
 
-    @Column(nullable = false)
-    private Timestamp createdAt;
+    @OneToMany(mappedBy = "survey")
+    private List<Section> sections = new ArrayList<>();
 
-    @Column(nullable = false)
-    private Timestamp updatedAt;
+    @OneToMany(mappedBy = "survey")
+    private List<SurveyResult> surveyResults = new ArrayList<>();
 }

@@ -1,49 +1,58 @@
 package servnow.servnow.domain.user.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import servnow.servnow.domain.common.BaseTimeEntity;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import servnow.servnow.domain.survey.model.Survey;
+import servnow.servnow.domain.surveyresult.model.SurveyResult;
+import servnow.servnow.domain.user.model.enums.Platform;
+import servnow.servnow.domain.user.model.enums.UserRole;
+import servnow.servnow.domain.user.model.enums.UserStatus;
 
 @Entity
 @Getter
-@Table(name = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@Table(name = "users")
 public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    @Column(name = "user_id")
+    private Long id;
 
     @Column(nullable = false)
-    private String platform;
+    @Enumerated(EnumType.STRING)
+    private Platform platform;
 
-    @Email
+    // 일반 로그인의 id, 카카오의 경우 serial_id 저장
     @Column(nullable = false)
-    private String email;
+    private String serialId;
 
-    @Column(nullable = false)
-    private String id;
-
-    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
-    private Integer point;
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
 
     @Column(nullable = false)
-    private Integer answerCount;
-
-    @Column(nullable = false)
-    private String role;
-
-    @Column(nullable = false)
-    private Boolean status;
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "user")
+    private List<Survey> surveys = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<SurveyResult> surveyResults = new ArrayList<>();
 }

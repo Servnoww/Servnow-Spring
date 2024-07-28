@@ -5,5 +5,4 @@ import servnow.servnow.domain.question.model.Question;
 import servnow.servnow.domain.user.model.User;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-
 }

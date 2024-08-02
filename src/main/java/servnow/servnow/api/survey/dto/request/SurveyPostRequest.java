@@ -1,4 +1,4 @@
-package servnow.servnow.api.survey.dto;
+package servnow.servnow.api.survey.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,22 +1,19 @@
 package servnow.servnow.api.auth.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import servnow.servnow.api.auth.controller.KakaoAuthApi;
-import servnow.servnow.api.dto.ServnowResponse;
-import servnow.servnow.common.code.CommonSuccessCode;
-import servnow.servnow.common.exception.BadRequestException;
+import servnow.servnow.domain.user.model.User;
+import servnow.servnow.domain.user.model.UserInfo;
+import servnow.servnow.domain.user.model.enums.Gender;
+import servnow.servnow.domain.user.model.enums.Platform;
+import servnow.servnow.domain.user.model.enums.UserRole;
+import servnow.servnow.domain.user.model.enums.UserStatus;
+import servnow.servnow.domain.user.repository.UserInfoRepository;
+import servnow.servnow.domain.user.repository.UserRepository;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,11 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@Log4j2
-@Log
-public class AuthService {
-    @Autowired
-    private KakaoAuthApi kakaoAuthApi;
+@AllArgsConstructor
+public class KakaoAuthService {
+    private final KakaoAuthApi kakaoAuthApi;
+    private final UserRepository userRepository;
+    private final UserInfoRepository userInfoRepository;
 
     public String getAccessToken(String code) throws IOException {
         String reqURL = "https://kauth.kakao.com/oauth/token";
@@ -74,23 +71,21 @@ public class AuthService {
             System.out.println("Access Token: " + accessToken);
             return accessToken;
         } else {
-            // Handle error response
             try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
                 StringBuilder response = new StringBuilder();
                 String line;
                 while ((line = br.readLine()) != null) {
                     response.append(line);
                 }
-                System.err.println("Error response: " + response.toString());
             }
-            throw new IOException("Failed to obtain access token. Response code: " + responseCode);
         }
+        return reqURL;
     }
 
-    public HashMap<String, Object> getUserInfo(String accessToken) {
-        HashMap<String, Object> userInfo = new HashMap<>();
+    public Map<String, Object> getUserInfo(String accessToken) {
+        Map<String, Object> userInfo = new HashMap<>();
         String reqUrl = "https://kapi.kakao.com/v2/user/me";
-        try{
+        try {
             URL url = new URL(reqUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -98,7 +93,6 @@ public class AuthService {
             conn.setRequestProperty("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
             int responseCode = conn.getResponseCode();
-//            log.info("[KakaoApi.getUserInfo] responseCode : {}",  responseCode);
 
             BufferedReader br;
             if (responseCode >= 200 && responseCode <= 300) {
@@ -107,33 +101,59 @@ public class AuthService {
                 br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
             }
 
-            String line = "";
             StringBuilder responseSb = new StringBuilder();
-            while((line = br.readLine()) != null){
+            String line;
+            while ((line = br.readLine()) != null) {
                 responseSb.append(line);
             }
             String result = responseSb.toString();
-//            log.info("responseBody = {}", result);
 
-            JsonParser parser = new JsonParser();
-            JsonElement element = parser.parse(result);
+            JsonElement element = JsonParser.parseString(result);
 
             JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
             JsonObject kakaoAccount = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
 
+            String serialId = element.getAsJsonObject().get("id").getAsString();
             String nickname = properties.getAsJsonObject().get("nickname").getAsString();
             String email = kakaoAccount.getAsJsonObject().get("email").getAsString();
-//            String gender = kakaoAccount.getAsJsonObject().get("gender").getAsString();
+            String gender = kakaoAccount.getAsJsonObject().get("gender").getAsString();
+            String birthyear = kakaoAccount.getAsJsonObject().get("birthyear").getAsString();
+            String birthday = kakaoAccount.getAsJsonObject().get("birthday").getAsString();
 
+            userInfo.put("serialId", serialId);
             userInfo.put("nickname", nickname);
             userInfo.put("email", email);
-//            userInfo.put("gender", gender);
+            userInfo.put("gender", gender);
+            userInfo.put("birth", birthyear + birthday);
+            userInfo.put("platform", Platform.KAKAO);
+            userInfo.put("status", UserStatus.ACTIVE);
+            userInfo.put("user_role", UserRole.USER);
 
             br.close();
-
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return userInfo;
+    }
+
+    public User saveUser(Map<String, Object> userInfo) {
+        User user = User.builder()
+                .platform((Platform) userInfo.get("platform"))
+                .serialId((String) userInfo.get("serialId"))
+                .status((UserStatus) userInfo.get("status"))
+                .userRole((UserRole) userInfo.get("user_role"))
+                .build();
+
+        return userRepository.save(user);
+    }
+
+    public UserInfo saveUserInfo(Map<String, Object> userInfo) {
+        UserInfo userInfoEntity = UserInfo.builder()
+                .email((String) userInfo.get("email"))
+                .nickname((String) userInfo.get("nickname"))
+                .gender(Gender.valueOf((String) userInfo.get("gender")))
+                .build();
+
+        return userInfoRepository.save(userInfoEntity);
     }
 }

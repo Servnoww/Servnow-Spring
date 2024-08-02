@@ -1,27 +1,27 @@
 package servnow.servnow.api.auth.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-import servnow.servnow.api.auth.service.AuthService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import servnow.servnow.api.auth.service.KakaoAuthService;
 import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.common.code.AuthErrorCode;
 import servnow.servnow.common.code.CommonSuccessCode;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 public class AuthController {
-    private final AuthService authService;
-
+    private final KakaoAuthService kakaoAuthService;
 
     /***
-     *
+     * 카카오 로그인 API
      * @param code
-     * @return
+     * @return data: 회원 정보
      */
     @GetMapping("/kakao")
     public ServnowResponse<String> kakaoLogin(@RequestParam(value = "code", required = false) String code) {
@@ -31,23 +31,16 @@ public class AuthController {
 
         try {
             // access token 발급
-            String accessToken = authService.getAccessToken(code);
+            String accessToken = kakaoAuthService.getAccessToken(code);
 
             // 사용자 정보 가져오기
-            Map<String, Object> userInfo = authService.getUserInfo(accessToken);
+            Map<String, Object> userInfo = kakaoAuthService.getUserInfo(accessToken);
 
-            String email = (String)userInfo.get("email");
-            String nickname = (String)userInfo.get("nickname");
-//            String gender = (String)userInfo.get("gender");
+            // 사용자 정보 저장
+//            authService.saveUser(userInfo);
+//            authService.saveUserInfo(userInfo);
 
-//            System.out.println("email = " + email);
-//            System.out.println("nickname = " + nickname);
-//            System.out.println("accessToken = " + accessToken);
-            Map<String, String> data = new HashMap<>();
-            data.put("email", email);
-            data.put("nickname", nickname);
-
-            return ServnowResponse.success(CommonSuccessCode.OK, data.toString());
+            return ServnowResponse.success(CommonSuccessCode.OK, userInfo.toString());
         } catch (Exception e) {
             return ServnowResponse.fail(AuthErrorCode.UNEXPECTED_ERROR);
         }

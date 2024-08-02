@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import servnow.servnow.api.dto.ServnowResponse;
-import servnow.servnow.api.survey.dto.SurveyPostRequest;
+import servnow.servnow.api.survey.dto.request.SurveyPostRequest;
 import servnow.servnow.api.survey.service.SurveyCommandService;
-import servnow.servnow.api.survey.service.SurveyQueryService;
 import servnow.servnow.common.code.CommonSuccessCode;
 
 @RestController
@@ -23,7 +22,6 @@ public class SurveyController {
   @PostMapping("/survey")
   public ServnowResponse<Void> createSurvey(@RequestBody @Valid SurveyPostRequest surveyPostRequest) {
     // 유저 임시생성, 추후 아이디 로직 머지 후 고칠 예정
-    System.out.println("왜안됨" +LocalDateTime.now());
     surveyCommandService.createSurvey(1L, surveyPostRequest);
     return ServnowResponse.success(CommonSuccessCode.CREATED);
   }

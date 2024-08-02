@@ -12,7 +12,7 @@ public class QuestionUpdater {
 
   private final QuestionRepository questionRepository;
 
-  public void saveAll(final List<Question> questions) {
-    questionRepository.saveAll(questions);
+  public void save(final Question question) {
+    questionRepository.save(question);
   }
 }

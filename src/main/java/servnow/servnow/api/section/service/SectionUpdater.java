@@ -12,7 +12,7 @@ public class SectionUpdater {
 
   private final SectionRepository sectionRepository;
 
-  public void saveAll(final List<Section> sections) {
-    sectionRepository.saveAll(sections);
+  public void save(final Section section) {
+    sectionRepository.save(section);
   }
 }

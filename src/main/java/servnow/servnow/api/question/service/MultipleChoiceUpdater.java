@@ -12,7 +12,7 @@ public class MultipleChoiceUpdater {
 
   private final MultipleChoiceRepository multipleChoiceRepository;
 
-  public void saveAll(final List<MultipleChoice> multipleChoice) {
-    multipleChoiceRepository.saveAll(multipleChoice);
+  public void save(final MultipleChoice multipleChoice) {
+    multipleChoiceRepository.save(multipleChoice);
   }
 }

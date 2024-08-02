@@ -56,4 +56,8 @@ public class Question extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "question")
     private List<MultipleChoiceResult> multipleChoiceResults = new ArrayList<>();
+
+    public static Question create(Section section, int questionOrder, String content, QuestionType questionType, boolean isEssential, boolean isDuplicate, boolean hasNextSection){
+        return Question.builder().section(section).questionOrder(questionOrder).content(content).questionType(questionType).isEssential(isEssential).isDuplicate(isDuplicate).hasNextSection(hasNextSection).build();
+    }
 }

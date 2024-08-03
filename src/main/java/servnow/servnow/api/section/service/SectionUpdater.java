@@ -1,6 +1,5 @@
 package servnow.servnow.api.section.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import servnow.servnow.domain.section.model.Section;

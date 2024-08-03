@@ -40,7 +40,6 @@ public class SurveyController {
 
   @GetMapping("/survey/{id}/sections/{sectionOrder}")
   public ServnowResponse<SurveyGetResponse> getSurveySection(@PathVariable(name = "id") long surveyId, @PathVariable(name = "sectionOrder") int sectionOrder) {
-    // 유저 임시생성, 추후 아이디 로직 머지 후 고칠 예정
     return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveySection(surveyId, sectionOrder));
   }
 }

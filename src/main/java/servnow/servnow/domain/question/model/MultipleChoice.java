@@ -26,5 +26,9 @@ public class MultipleChoice {
     @Column(nullable = false)
     private String content;
 
-    private int nextSectionNo;
+    private Integer nextSectionNo;
+
+    public static MultipleChoice create(Question question, String content, Integer nextSectionNo) {
+        return MultipleChoice.builder().question(question).content(content).nextSectionNo(nextSectionNo).build();
+    }
 }

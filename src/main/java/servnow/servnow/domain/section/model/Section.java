@@ -42,4 +42,8 @@ public class Section extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "section")
     private List<Question> questions = new ArrayList<>();
+
+    public static Section create(Survey survey, int sectionOrder, String title, String content, int nextSectionNo) {
+        return Section.builder().survey(survey).sectionOrder(sectionOrder).title(title).content(content).nextSectionNo(nextSectionNo).build();
+    }
 }

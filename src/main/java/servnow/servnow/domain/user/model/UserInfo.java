@@ -53,4 +53,8 @@ public class UserInfo extends BaseTimeEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Level level;
+
+    public void updatePoint(int increment) {
+        this.point += increment;
+    }
 }

@@ -49,14 +49,7 @@ public record SurveyGetResponse(
           question.isEssential(),
           question.isDuplicate(),
           question.isHasNextSection(),
-          getMultipleChoicesOrNull(question));
-    }
-
-    private static List<SurveyGetAnswer> getMultipleChoicesOrNull(final Question question){
-        if (question.getQuestionType().equals(QuestionType.MULTIPLE_CHOICE)){
-          return question.getMultipleChoices().stream().map(SurveyGetAnswer::of).toList();
-        }
-        return null;
+          question.getMultipleChoices().stream().map(SurveyGetAnswer::of).toList());
     }
 
     public record SurveyGetAnswer(

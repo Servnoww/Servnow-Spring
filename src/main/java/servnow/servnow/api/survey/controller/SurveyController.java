@@ -36,6 +36,7 @@ public class SurveyController {
 
   @GetMapping("/survey/{id}/intro")
   public ServnowResponse<SurveyIntroGetResponse> getSurveyIntro(@PathVariable(name = "id") long id) {
-    return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveyIntro(null, id));
+    // 유저 임시생성, 추후 아이디 로직 머지 후 고칠 예정
+    return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveyIntro(1L, id));
   }
 }

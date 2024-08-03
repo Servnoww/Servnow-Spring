@@ -71,7 +71,7 @@ public record SurveyPostRequest(
     ) {
 
       public Question toEntity(final Section section) {
-        return Question.create(section, questionOrder, questionContent, questionType, isEssential,
+        return Question.create(section, questionOrder, questionTitle, questionContent, questionType, isEssential,
             isDuplicate, hasNextSection);
       }
 

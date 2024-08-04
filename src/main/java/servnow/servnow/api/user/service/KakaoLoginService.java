@@ -44,7 +44,6 @@ public class KakaoLoginService {
         }
 
         User user = User.builder()
-                .id(userDto.getId())
                 .serialId(userDto.getSerialId())
                 .platform(userDto.getPlatform())
                 .status(userDto.getStatus())
@@ -55,10 +54,10 @@ public class KakaoLoginService {
 
         UserInfo userInfo = UserInfo.builder()
                 .user(user)
-                .id(userInfoDto.getId())
                 .email(userInfoDto.getEmail())
                 .nickname(userInfoDto.getNickname())
                 .gender(userInfoDto.getGender())
+                .profile_url(userInfoDto.getProfile_url())
                 .birth(userInfoDto.getBirth())
                 .point(userInfoDto.getPoint())
                 .level(userInfoDto.getLevel())
@@ -66,6 +65,6 @@ public class KakaoLoginService {
 
         userInfoRepository.save(userInfo);
 
-        return ServnowResponse.success(null); // 데이터가 없으므로 null로 설정
+        return ServnowResponse.success(CommonSuccessCode.OK);
     }
 }

@@ -1,5 +1,7 @@
 package servnow.servnow.api.auth.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import servnow.servnow.api.auth.service.KakaoAuthService;
@@ -22,7 +24,10 @@ public class AuthController {
      * @return data: 회원 정보
      */
     @GetMapping("/kakao")
-    public ServnowResponse<UserInfo> kakaoLogin(@RequestParam(value = "code", required = false) String code) {
+    public ServnowResponse<UserInfo> kakaoLogin(
+            @RequestParam(value = "code", required = false) String code,
+            HttpSession session
+    ) {
         if (code == null || code.isEmpty()) {
             return ServnowResponse.fail(AuthErrorCode.INVALID_REQUEST);
         }
@@ -37,6 +42,13 @@ public class AuthController {
             // 사용자 정보 저장
             kakaoLoginService.saveUser(userInfo);
 
+            // 로그인
+            if (userInfo != null) {
+                session.setAttribute("loginMember", userInfo);
+                session.setMaxInactiveInterval(60 * 30);
+                session.setAttribute("kakaoToken", accessToken);
+            }
+
             return ServnowResponse.success(CommonSuccessCode.OK, userInfo);
         } catch (Exception e) {
             return ServnowResponse.fail(AuthErrorCode.UNEXPECTED_ERROR);
@@ -45,27 +57,49 @@ public class AuthController {
 
     /**
      * 카카오 토큰 갱신 API
-     * [GET] /app/login/kakao/:userId
-     * @return BaseResponse<String>
+     * @param userInfoId
+     * @return ServnowResponse<UserInfo>
      */
-//    @ResponseBody
-//    @GetMapping("/kakao/{userId}")
-//    public ServnowResponse<String> updateKakaoToken(@PathVariable int userId) {
-//        String result = "";
-//
+//    @GetMapping("/kakao/refresh/{userInfoId}")
+//    public ServnowResponse<UserInfo> refreshKakaoToken(@PathVariable Long userInfoId) {
 //        try {
-//            //jwt에서 id 추출.
-//            int userIdxByJwt = jwtService.getUserIdx();
-//            //userIdx와 접근한 유저가 같은지 확인
-//            if(userId != userIdxByJwt){
-//                return new BaseResponse<>(INVALID_USER_JWT);
-//            }
-//						//같으면 토큰 갱신
-//            loginService.updateKakaoToken(userId);
+//            // 새로운 액세스 토큰 발급
+//            String newAccessToken = kakaoAuthService.refreshAccessToken(userInfoId);
 //
-//            return new BaseResponse<>(result);
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>((exception.getStatus()));
+//            // 사용자 정보 가져오기
+//            ServnowResponse<UserInfo> response = kakaoAuthService.getUserInfo(newAccessToken);
+//
+//            // 사용자 정보 저장
+//            kakaoLoginService.saveUser(response.getData());
+//
+//            return ServnowResponse.success(CommonSuccessCode.OK, response.getData());
+//        } catch (IOException e) {
+//            return ServnowResponse.fail(AuthErrorCode.UNEXPECTED_ERROR);
 //        }
+//    }
+
+    /**
+     * 카카오 로그아웃
+     * @return
+     */
+//    @GetMapping("/kakao/logout")
+//    public ServnowResponse<Object> kakaoLogout(HttpSession session) {
+//        String accessToken = (String) session.getAttribute("kakaoToken");
+//
+//        if(accessToken != null && !"".equals(accessToken)){
+//            try {
+//                kakaoAuthService.kakaoDisconnect(accessToken);
+//            } catch (JsonProcessingException e) {
+//                throw new RuntimeException(e);
+//            }
+//            session.removeAttribute("kakaoToken");
+//            session.removeAttribute("loginMember");
+//
+//            return ServnowResponse.success(CommonSuccessCode.OK);
+//        }else{
+//            System.out.println("accessToken is null");
+//        }
+//
+//        return ServnowResponse.fail(AuthErrorCode.INTERNAL_SERVER_ERROR);
 //    }
 }

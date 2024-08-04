@@ -14,6 +14,7 @@ import servnow.servnow.domain.section.model.Section;
 import servnow.servnow.domain.survey.model.enums.CharacterType;
 import servnow.servnow.domain.surveyresult.model.SurveyResult;
 import servnow.servnow.domain.user.model.User;
+import servnow.servnow.domain.user.model.enums.Platform;
 
 @Entity
 @Getter
@@ -35,7 +36,10 @@ public class Survey extends BaseTimeEntity{
     private String title;
 
     @Column(nullable = false)
-    private String content;
+    private String content1;
+
+    @Column(nullable = false)
+    private String content2;
 
     @Column(nullable = false)
     private int duration;
@@ -55,7 +59,7 @@ public class Survey extends BaseTimeEntity{
 
     private String reward;
 
-    private int rewardCount;
+    private Integer rewardCount;
 
     @Column(nullable = false)
     private LocalDateTime expiredAt;
@@ -65,4 +69,21 @@ public class Survey extends BaseTimeEntity{
 
     @OneToMany(mappedBy = "survey")
     private List<SurveyResult> surveyResults = new ArrayList<>();
+
+    public static Survey create(User user, String title, String content1, String content2, int duration, String mainColor, String subColor, String font, CharacterType characterType, String reward, Integer rewardCount, LocalDateTime expiredAt) {
+        return Survey.builder()
+            .user(user)
+            .title(title)
+            .content1(content1)
+            .content2(content2)
+            .duration(duration)
+            .mainColor(mainColor)
+            .subColor(subColor)
+            .font(font)
+            .characterType(characterType)
+            .reward(reward)
+            .rewardCount(rewardCount)
+            .expiredAt(expiredAt)
+            .build();
+    }
 }

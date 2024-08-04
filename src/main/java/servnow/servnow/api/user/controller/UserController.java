@@ -1,10 +1,15 @@
 package servnow.servnow.api.user.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import servnow.servnow.api.advice.ResponseAdvice;
+import servnow.servnow.api.dto.ServnowResponse;
+import servnow.servnow.api.user.controller.response.MyPageResponse;
 import servnow.servnow.api.user.service.UserCommandService;
 import servnow.servnow.api.user.service.UserQueryService;
+<<<<<<< HEAD
 import org.springframework.web.bind.annotation.*;
 import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.user.controller.request.CertificationNumberRequest;
@@ -14,6 +19,11 @@ import servnow.servnow.api.user.service.response.EditProfilePageResponse;
 import servnow.servnow.api.user.service.response.MyPageResponse;
 import servnow.servnow.common.code.CommonSuccessCode;
 import servnow.servnow.common.code.UserMyPageErrorCode;
+=======
+import servnow.servnow.common.code.CommonSuccessCode;
+import servnow.servnow.domain.user.model.User;
+import servnow.servnow.domain.user.model.UserInfo;
+>>>>>>> dff943b984c64afc55bf926237bcbb1229a9519a
 
 @RestController
 @RequestMapping("/api/v1")

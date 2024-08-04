@@ -82,24 +82,24 @@ public class AuthController {
      * 카카오 로그아웃
      * @return
      */
-//    @GetMapping("/kakao/logout")
-//    public ServnowResponse<Object> kakaoLogout(HttpSession session) {
-//        String accessToken = (String) session.getAttribute("kakaoToken");
-//
-//        if(accessToken != null && !"".equals(accessToken)){
-//            try {
-//                kakaoAuthService.kakaoDisconnect(accessToken);
-//            } catch (JsonProcessingException e) {
-//                throw new RuntimeException(e);
-//            }
-//            session.removeAttribute("kakaoToken");
-//            session.removeAttribute("loginMember");
-//
-//            return ServnowResponse.success(CommonSuccessCode.OK);
-//        }else{
-//            System.out.println("accessToken is null");
-//        }
-//
-//        return ServnowResponse.fail(AuthErrorCode.INTERNAL_SERVER_ERROR);
-//    }
+     @GetMapping("/kakao/logout")
+     public ServnowResponse<Object> kakaoLogout(HttpSession session) {
+        String accessToken = (String) session.getAttribute("kakaoToken");
+
+        if(accessToken != null && !"".equals(accessToken)){
+            try {
+                kakaoAuthService.kakaoDisconnect(accessToken);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            session.removeAttribute("kakaoToken");
+            session.removeAttribute("loginMember");
+
+            return ServnowResponse.success(CommonSuccessCode.OK);
+        }else{
+            System.out.println("accessToken is null");
+        }
+
+        return ServnowResponse.fail(AuthErrorCode.INTERNAL_SERVER_ERROR);
+    }
 }

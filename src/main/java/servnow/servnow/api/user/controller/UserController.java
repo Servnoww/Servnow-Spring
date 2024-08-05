@@ -77,13 +77,19 @@ public class UserController {
 
     @PostMapping("/users/me/info/save")
     public ServnowResponse<SaveEditProfilePageRequest> profileSave(@RequestBody final SaveEditProfilePageRequest request) {
-        if (request.certificationNumber().equals(EmailService.ePw)) {
-            userQueryService.profileSave(request);
+        // 이메일이 변경되었고, 인증번호가 있는 경우
+        if (request.email() != null && !request.email().isEmpty() &&
+                request.certificationNumber() != null && request.certificationNumber().equals(EmailService.ePw)) {
+            userCommandService.profileSave(request);
+            return ServnowResponse.success(CommonSuccessCode.OK);
+        } else if ((request.certificationNumber() == null) || request.certificationNumber().isEmpty()) {
+            // 인증번호 없이 아이디 또는 비밀번호만 변경하려는 경우
+            userCommandService.profileSave(request);
             return ServnowResponse.success(CommonSuccessCode.OK);
         } else {
+            System.out.println("COntroller out");
             return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
         }
-
     }
 
 }

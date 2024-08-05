@@ -42,7 +42,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 
 	// Security
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -52,6 +52,7 @@ dependencies {
 	// gson
 	implementation 'com.google.code.gson:gson:2.8.7'
 
+	// webClient
 }
 
 tasks.named('test') {

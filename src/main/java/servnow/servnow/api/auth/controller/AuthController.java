@@ -4,54 +4,44 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import servnow.servnow.api.auth.service.KakaoAuthService;
+import servnow.servnow.api.auth.service.KakaoService;
 import servnow.servnow.api.dto.ServnowResponse;
-import servnow.servnow.api.user.service.KakaoLoginService;
+import servnow.servnow.api.dto.auth.AuthToken;
+import servnow.servnow.api.dto.login.LoginResponse;
 import servnow.servnow.common.code.AuthErrorCode;
 import servnow.servnow.common.code.CommonSuccessCode;
-import servnow.servnow.domain.user.model.UserInfo;
+
+import java.util.HashMap;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 public class AuthController {
-    private final KakaoAuthService kakaoAuthService;
-    private final KakaoLoginService kakaoLoginService;
+    private final KakaoService kakaoAuthService;
+    private AuthToken authToken;
+
 
     /***
      * 카카오 로그인 API
      * @param code
      * @return data: 회원 정보
      */
+    @ResponseBody
     @GetMapping("/kakao")
-    public ServnowResponse<UserInfo> kakaoLogin(
-            @RequestParam(value = "code", required = false) String code,
-            HttpSession session
-    ) {
-        if (code == null || code.isEmpty()) {
-            return ServnowResponse.fail(AuthErrorCode.INVALID_REQUEST);
-        }
-
+    public ServnowResponse<LoginResponse> kakaoLogin(@RequestParam(value = "code", required = false) String code) {
         try {
             // access token 발급
-            String accessToken = kakaoAuthService.getAccessToken(code);
+/*            String accessToken = kakaoAuthService.getAccessToken(code);
 
             // 사용자 정보 가져오기
-            UserInfo userInfo = kakaoAuthService.getUserInfo(accessToken).getData();
+            HashMap<String, Object> user = kakaoAuthService.getUserInfo(accessToken);
 
             // 사용자 정보 저장
-            kakaoLoginService.saveUser(userInfo);
+            kakaoAuthService.kakaoUserLogin(user);*/
 
-            // 로그인
-            if (userInfo != null) {
-                session.setAttribute("loginMember", userInfo);
-                session.setMaxInactiveInterval(60 * 30);
-                session.setAttribute("kakaoToken", accessToken);
-            }
-
-            return ServnowResponse.success(CommonSuccessCode.OK, userInfo);
+            return ServnowResponse.success(CommonSuccessCode.OK, kakaoAuthService.kakaoLogin(code));
         } catch (Exception e) {
-            return ServnowResponse.fail(AuthErrorCode.UNEXPECTED_ERROR);
+            return ServnowResponse.fail(AuthErrorCode.INVALID_ACCESS_TOKEN);
         }
     }
 
@@ -83,7 +73,7 @@ public class AuthController {
      * @return
      */
      @GetMapping("/kakao/logout")
-     public ServnowResponse<Object> kakaoLogout(HttpSession session) {
+     public ServnowResponse<String> kakaoLogout(HttpSession session) {
         String accessToken = (String) session.getAttribute("kakaoToken");
 
         if(accessToken != null && !"".equals(accessToken)){

@@ -4,26 +4,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import servnow.servnow.api.advice.ResponseAdvice;
 import servnow.servnow.api.dto.ServnowResponse;
-import servnow.servnow.api.user.controller.response.MyPageResponse;
+import servnow.servnow.api.user.dto.request.SaveEditProfilePageRequest;
+import servnow.servnow.api.user.dto.request.SerialIdDuplicateRequest;
+import servnow.servnow.api.user.dto.response.MyPageResponse;
 import servnow.servnow.api.user.service.UserCommandService;
 import servnow.servnow.api.user.service.UserQueryService;
-<<<<<<< HEAD
 import org.springframework.web.bind.annotation.*;
-import servnow.servnow.api.dto.ServnowResponse;
-import servnow.servnow.api.user.controller.request.CertificationNumberRequest;
-import servnow.servnow.api.user.controller.request.EmailDuplicateRequest;
+import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
+import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
 import servnow.servnow.api.user.service.EmailService;
-import servnow.servnow.api.user.service.response.EditProfilePageResponse;
-import servnow.servnow.api.user.service.response.MyPageResponse;
+import servnow.servnow.api.user.dto.response.EditProfilePageResponse;
 import servnow.servnow.common.code.CommonSuccessCode;
-import servnow.servnow.common.code.UserMyPageErrorCode;
-=======
-import servnow.servnow.common.code.CommonSuccessCode;
-import servnow.servnow.domain.user.model.User;
-import servnow.servnow.domain.user.model.UserInfo;
->>>>>>> dff943b984c64afc55bf926237bcbb1229a9519a
+import servnow.servnow.common.code.UserErrorCode;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -47,11 +40,18 @@ public class UserController {
         return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getEditProfilePage());
     }
 
+    @GetMapping("/users/me/id")
+    public ServnowResponse<Boolean> getSerialIdDuplicate(@RequestBody SerialIdDuplicateRequest request) {
+        // userId를 추출했다고 가정
+        return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getSerialIdDuplicate(request.serialId()));
+    }
+
+
     @PostMapping("/users/me/info/identity-verification")
     public ServnowResponse<Void> identityVerification(@RequestBody EmailDuplicateRequest request) {
 
         if (userQueryService.emailDuplicate(request.email())) {
-            return ServnowResponse.fail(UserMyPageErrorCode.EMAIL_DUPLICATE);
+            return ServnowResponse.fail(UserErrorCode.EMAIL_DUPLICATE);
         }
         String confirm;
         try {
@@ -60,7 +60,7 @@ public class UserController {
             throw new RuntimeException(e);
         }
         if (confirm.isEmpty()) {
-            return ServnowResponse.fail(UserMyPageErrorCode.SEND_CERTIFICATION_NUMBER);
+            return ServnowResponse.fail(UserErrorCode.SEND_CERTIFICATION_NUMBER);
         } else {
             return ServnowResponse.success(CommonSuccessCode.OK);
         }
@@ -71,13 +71,19 @@ public class UserController {
         if (request.certificationNumber().equals(EmailService.ePw)) {
             return ServnowResponse.success(CommonSuccessCode.OK);
         } else {
-            return ServnowResponse.fail(UserMyPageErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
         }
     }
 
-//    @PostMapping("/users/me/info/save")
-//    public ServnowResponse<SaveEditProfilePageRequest> save(@RequestBody final SaveEditProfilePageRequest request) {
-//
-//    }
+    @PostMapping("/users/me/info/save")
+    public ServnowResponse<SaveEditProfilePageRequest> profileSave(@RequestBody final SaveEditProfilePageRequest request) {
+        if (request.certificationNumber().equals(EmailService.ePw)) {
+            userQueryService.profileSave(request);
+            return ServnowResponse.success(CommonSuccessCode.OK);
+        } else {
+            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+        }
+
+    }
 
 }

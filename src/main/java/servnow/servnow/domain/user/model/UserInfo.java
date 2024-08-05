@@ -57,4 +57,10 @@ public class UserInfo extends BaseTimeEntity {
     public void updatePoint(int increment) {
         this.point += increment;
     }
+    public void setProfile_url(String profileUrl) {
+        this.profile_url = profileUrl;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

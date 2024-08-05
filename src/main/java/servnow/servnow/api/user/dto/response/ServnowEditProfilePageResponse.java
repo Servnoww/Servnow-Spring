@@ -1,4 +1,4 @@
-package servnow.servnow.api.user.service.response;
+package servnow.servnow.api.user.dto.response;
 
 import servnow.servnow.domain.user.model.User;
 import servnow.servnow.domain.user.model.UserInfo;

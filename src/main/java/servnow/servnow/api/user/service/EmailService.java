@@ -28,7 +28,7 @@ public class EmailService {
 
         String msgg = getMsgg();
         message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress("rhythmpal0219@gmail.com", "SERVNOW"));//보내는 사람
+        message.setFrom(new InternetAddress("SERVNOW@gmail.com", "SERVNOW"));//보내는 사람
 
         return message;
     }

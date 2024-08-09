@@ -7,26 +7,25 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
-import servnow.servnow.auth.jwt.JwtGenerator;
 import servnow.servnow.auth.jwt.JwtProvider;
 import servnow.servnow.auth.jwt.Token;
 import servnow.servnow.domain.user.model.User;
 import servnow.servnow.domain.user.model.UserInfo;
 import servnow.servnow.domain.user.model.enums.*;
+import servnow.servnow.domain.user.repository.UserInfoRepository;
 import servnow.servnow.domain.user.repository.UserRepository;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.Optional;
 
 import static servnow.servnow.domain.user.model.User.createUser;
-import static servnow.servnow.domain.user.model.enums.UserStatus.ACTIVE;
 
 @Service
 @AllArgsConstructor
@@ -34,6 +33,8 @@ public class KakaoService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final UserRepository userRepository;
+	private final UserInfoRepository userInfoRepository;
+
     private final JwtProvider jwtProvider;
     private UserFinder userFinder;
     private UserInfoFinder userInfoFinder;
@@ -42,12 +43,18 @@ public class KakaoService {
      public UserLoginResponse login(String accessToken, UserLoginRequest request) throws IOException {
         HashMap<String, Object> userInfo = getUserInfo(accessToken);
 
-        String serialId = userInfo.get("id").toString();
+        String serialId = (String) userInfo.getOrDefault("id", "unknown");
+        String email = (String) userInfo.getOrDefault("email", "unknown@example.com");
+        String nickname = (String) userInfo.getOrDefault("nickname", "unknown");
+        String gender = (String) userInfo.getOrDefault("gender", "unknown");
+        String url = (String) userInfo.getOrDefault("profile_url", "default_url");
+        LocalDate birthDate = (LocalDate) userInfo.getOrDefault("birthDate", LocalDate.now());
 
         Platform platform = Platform.getEnumPlatformFromStringPlatform(request.platform());
         boolean isRegistered = userFinder.isRegisteredUser(platform, serialId);
 
         User findUser = loadOrCreateUser(Platform.KAKAO, serialId, isRegistered);
+        saveUser(findUser, nickname, gender, email, birthDate, url);
 
         // jwt 토큰 생성
         Token issuedToken = generateTokens(findUser.getId());
@@ -55,34 +62,10 @@ public class KakaoService {
         return UserLoginResponse.of(issuedToken, isRegistered);
     }
 
-//     private Token userLogin(HashMap<String, Object> userInfo){
-//        String id = userInfo.get("id").toString();
-//
-//        User kakaoUser = userRepository.findBySerialId(id).orElse(null);
-//
-//        if (kakaoUser == null) {    // 회원가입
-//        	kakaoUser = User.builder()
-//        	    .serialId(id)
-//                .userRole(UserRole.USER)
-//                .status(ACTIVE)
-//                .platform(Platform.KAKAO)
-//                .build();
-//
-//            userRepository.save(kakaoUser);
-//        }
-//
-//        // jwt 토큰 생성
-//        Token token = authTokensGenerator.generate(id);
-//        System.out.println("AuthToken: "+token);
-//
-//        return token;
-//    }
-
     private Token generateTokens(final Long id) {
         Token issuedTokens = jwtProvider.issueTokens(id, getUserRole(id));
-//        UserInfo findInfoUser = userInfoFinder.getUserInfo(id);
-//        findInfoUser.updateRefreshToken(issuedTokens.refreshToken());
-        User findUser = userFinder.getUser(id);
+        UserInfo findInfoUser = userInfoFinder.getUserInfo(id);
+        findInfoUser.setRefreshToken(issuedTokens.refreshToken());
         return issuedTokens;
     }
 
@@ -93,16 +76,30 @@ public class KakaoService {
                     User newUser = createUser(
                             serialId,
                             platform);
-                    saveUser(newUser);
+                    saveUser(newUser, null, null, null, null, null);
                     return newUser;
                 });
     }
 
-    private void saveUser(final User user) {
+//    private void saveUser(final User user) {
+//        userUpdater.saveUser(user);
+////        UserInfo userInfo = UserInfo.createMemberInfo(user, null);
+////        userInfoUpdater.saveUserInfo(userInfo);
+//    }
+
+     private void saveUser(User user, String nickname, String gender, String email, LocalDate birthDate, String url) {
         userUpdater.saveUser(user);
-//        UserInfo userInfo = UserInfo.createMemberInfo(user, null);
-//        userInfoUpdater.saveUserInfo(userInfo);
+
+        if (userInfoFinder == null) {
+            UserInfo newUserInfo = UserInfo.createMemberInfo(
+                    user, null, nickname, gender, email, birthDate, url);
+            userInfoRepository.save(newUserInfo);
+        } else {
+//            userInfoFinder.update(nickname, gender, email, birthDate, url);
+//            userInfoRepository.save(userInfoFinder);
+        }
     }
+
 
     // 사용자 정보 조회
     public HashMap<String, Object> getUserInfo(String accessToken) throws JsonProcessingException {
@@ -123,29 +120,40 @@ public class KakaoService {
                 String.class
         );
 
-        // 응답 본문 처리
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode element = objectMapper.readTree(responseBody);
 
-        // 응답에서 사용자 ID 추출
-        String serialId = element.get("id").asText();
-        userInfo.put("id", serialId);
+        String id = element.get("id").asText();
+        String email = element.path("kakao_account").path("email").asText();
+        String gender = element.path("kakao_account").path("gender").asText().toUpperCase();
+        String birthyear = element.path("kakao_account").path("birthyear").asText();
+        String birthday = element.path("kakao_account").path("birthday").asText();
+        String nickname = element.path("properties").path("nickname").asText();
+        String profileUrl = element.path("properties").path("profile_image").asText();
 
-        System.out.println("serialId: " + serialId);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate birthDate = LocalDate.parse(birthyear + birthday, formatter);
+
+        userInfo.put("id", id);
+        userInfo.put("email", email);
+        userInfo.put("gender", gender);
+        userInfo.put("nickname", nickname);
+        userInfo.put("profile_url", profileUrl);
+        userInfo.put("birthDate", birthDate);
 
         return userInfo;
     }
-
 
 
     private String getUserRole(final Long id) {
         return userFinder.getUser(id).getUserRole().getValue();
     }
 
-//    private String getRefreshToken(final String serialId) {
-//        return userFinder.getUser(serialId).getRefreshToken();
-//    }
+    private String getRefreshToken(final Long id) {
+        return userInfoFinder.getUserInfo(id).getRefreshToken();
+    }
 
      public void kakaoDisconnect(String accessToken) throws JsonProcessingException {
         // HTTP Header 생성

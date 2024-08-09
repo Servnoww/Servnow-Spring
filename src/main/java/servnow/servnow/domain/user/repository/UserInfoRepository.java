@@ -7,5 +7,5 @@ import servnow.servnow.domain.user.model.UserInfo;
 import java.util.Optional;
 
 public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
-    Optional<UserInfo> findByEmail(String email);
+    Optional<UserInfo> findByUserId(Long userId);
 }

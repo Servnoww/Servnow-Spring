@@ -19,6 +19,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,

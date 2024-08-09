@@ -15,7 +15,6 @@ import servnow.servnow.auth.filter.ExceptionHandlerFilter;
 import servnow.servnow.auth.filter.JwtAuthenticationFilter;
 import servnow.servnow.auth.jwt.JwtProvider;
 import servnow.servnow.auth.jwt.JwtValidator;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -25,7 +24,7 @@ public class SecurityConfig {
     private final JwtValidator jwtValidator;
     private final JwtProvider jwtProvider;
 
-    private static final String[] whiteList = {"/api/v1/auth/login", "/api/v1/auth/reissue", "/actuator/health"};
+    private static final String[] whiteList = {"/api/v1/auth/kakao", "/api/v1/auth/reissue"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

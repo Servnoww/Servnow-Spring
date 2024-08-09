@@ -2,37 +2,55 @@ package servnow.servnow.auth.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import servnow.servnow.api.dto.auth.AuthToken;
 
 import java.security.Key;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 
-import static servnow.servnow.auth.jwt.JwtValidator.BEARER_TYPE;
-
 @Component
+@RequiredArgsConstructor
 public class JwtGenerator {
     @Value("${jwt.secret}")
     private String JWT_SECRET;
-//    @Value("${jwt.access-token-expiration}")
-    @Value("1800000")
-    private long ACCESS_TOKEN_EXPIRE_TIME;
-//    @Value("${jwt.refresh-token-expiration}")
-    @Value("604800000")
-    private long REFRESH_TOKEN_EXPIRE_TIME;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60; 	//1시간
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 14;  // 14일
 
     public static final String USER_ROLE_CLAIM_NAME = "role";
 
-	private JwtProvider jwtTokenProvider;
+    public JwtParser getJwtParser() {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build();
+    }
 
+    private Key getSigningKey() {
+//        byte[] keyBytes = Base64.getUrlDecoder().decode(JWT_SECRET);
+//        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    }
 
-/*    public String generateToken(String userId, String role, boolean isAccessToken) {
+    private long calculateExpirationTime(boolean isAccessToken) {
+        if (isAccessToken) {
+            return ACCESS_TOKEN_EXPIRE_TIME;
+        }
+        return REFRESH_TOKEN_EXPIRE_TIME;
+    }
+
+    public String generateToken(Long serialId, String role, boolean isAccessToken) {
         final Date now = generateNowDate();
         final Date expiration = generateExpirationDate(isAccessToken, now);
 
-        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
+        Claims claims = Jwts.claims().setSubject(String.valueOf(serialId));
         if (isAccessToken) {
             claims.put(USER_ROLE_CLAIM_NAME, role);
         }
@@ -42,26 +60,8 @@ public class JwtGenerator {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiration)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
-    }*/
-
-    public AuthToken generate(String uid) {
-        long now = (new Date()).getTime();
-        Date accessTokenExpiredAt = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
-        Date refreshTokenExpiredAt = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
-
-        //String subject = email.toString();
-        String accessToken = jwtTokenProvider.accessTokenGenerate(uid, accessTokenExpiredAt);
-        String refreshToken = jwtTokenProvider.refreshTokenGenerate(refreshTokenExpiredAt);
-
-        return AuthToken.of(accessToken, refreshToken, BEARER_TYPE, ACCESS_TOKEN_EXPIRE_TIME / 1000L);
-    }
-
-    public JwtParser getJwtParser() {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build();
     }
 
     private Date generateNowDate() {
@@ -70,17 +70,5 @@ public class JwtGenerator {
 
     private Date generateExpirationDate(boolean isAccessToken, Date now) {
         return new Date(now.getTime() + calculateExpirationTime(isAccessToken));
-    }
-
-    private Key getSigningKey() {
-        byte[] keyBytes = Base64.getDecoder().decode(JWT_SECRET);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    private long calculateExpirationTime(boolean isAccessToken) {
-        if (isAccessToken) {
-            return ACCESS_TOKEN_EXPIRE_TIME;
-        }
-        return REFRESH_TOKEN_EXPIRE_TIME;
     }
 }

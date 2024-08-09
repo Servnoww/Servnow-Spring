@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import servnow.servnow.domain.common.BaseTimeEntity;
 import servnow.servnow.domain.question.model.Question;
 import servnow.servnow.domain.survey.model.Survey;
@@ -41,5 +42,10 @@ public class Section extends BaseTimeEntity {
     private int nextSectionNo;
 
     @OneToMany(mappedBy = "section")
+    @BatchSize(size = 100)
     private List<Question> questions = new ArrayList<>();
+
+    public static Section create(Survey survey, int sectionOrder, String title, String content, int nextSectionNo) {
+        return Section.builder().survey(survey).sectionOrder(sectionOrder).title(title).content(content).nextSectionNo(nextSectionNo).build();
+    }
 }

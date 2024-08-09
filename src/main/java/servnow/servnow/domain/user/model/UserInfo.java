@@ -72,5 +72,9 @@ public class UserInfo extends BaseTimeEntity {
                 .point(0)
                 .level(Level.COMMONER)
                 .build();
+  }
+  
+  public void updatePoint(int increment) {
+        this.point += increment;
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
+import servnow.servnow.api.user.service.UserFinder;
+import servnow.servnow.api.user.service.UserInfoFinder;
 import servnow.servnow.auth.jwt.JwtProvider;
 import servnow.servnow.auth.jwt.Token;
 import servnow.servnow.domain.user.model.User;
@@ -36,7 +38,7 @@ public class KakaoService {
     private UserInfoFinder userInfoFinder;
     private UserUpdater userUpdater;
 
-     public UserLoginResponse login(String accessToken, UserLoginRequest request) throws IOException {
+     public UserLoginResponse login(String accessToken, String pf) throws IOException {
         HashMap<String, Object> userInfo = getUserInfo(accessToken);
 
         String serialId = (String) userInfo.getOrDefault("id", "unknown");
@@ -46,7 +48,7 @@ public class KakaoService {
         String url = (String) userInfo.getOrDefault("profile_url", "default_url");
         LocalDate birthDate = (LocalDate) userInfo.getOrDefault("birthDate", LocalDate.now());
 
-        Platform platform = Platform.getEnumPlatformFromStringPlatform(request.platform());
+        Platform platform = Platform.getEnumPlatformFromStringPlatform(pf);
         boolean isRegistered = userFinder.isRegisteredUser(platform, serialId);
 
         User findUser = loadOrCreateUser(Platform.KAKAO, serialId, isRegistered);
@@ -60,7 +62,7 @@ public class KakaoService {
 
     private Token generateTokens(final Long id) {
         Token issuedTokens = jwtProvider.issueTokens(id, getUserRole(id));
-        UserInfo findInfoUser = userInfoFinder.getUserInfo(id);
+        UserInfo findInfoUser = userInfoFinder.findByUserId(id);
         findInfoUser.setRefreshToken(issuedTokens.refreshToken());
         return issuedTokens;
     }
@@ -144,11 +146,11 @@ public class KakaoService {
 
 
     private String getUserRole(final Long id) {
-        return userFinder.getUser(id).getUserRole().getValue();
+        return userFinder.findById(id).getUserRole().getValue();
     }
 
     private String getRefreshToken(final Long id) {
-        return userInfoFinder.getUserInfo(id).getRefreshToken();
+        return userInfoFinder.findByUserId(id).getRefreshToken();
     }
 
      public void kakaoDisconnect(String accessToken) throws JsonProcessingException {

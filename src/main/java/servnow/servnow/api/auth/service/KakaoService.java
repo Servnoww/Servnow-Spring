@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -30,8 +28,6 @@ import static servnow.servnow.domain.user.model.User.createUser;
 @Service
 @AllArgsConstructor
 public class KakaoService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 	private final UserRepository userRepository;
 	private final UserInfoRepository userInfoRepository;
 

@@ -1,7 +1,6 @@
 package servnow.servnow.api.dto.login;
 
 import lombok.*;
-import servnow.servnow.api.dto.auth.AuthToken;
 import servnow.servnow.auth.jwt.Token;
 
 @Builder(access = AccessLevel.PRIVATE)

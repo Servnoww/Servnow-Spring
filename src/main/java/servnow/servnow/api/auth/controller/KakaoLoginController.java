@@ -1,7 +1,6 @@
 package servnow.servnow.api.auth.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import servnow.servnow.api.auth.service.KakaoService;
 import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
-import servnow.servnow.auth.jwt.Token;
 import servnow.servnow.common.code.CommonSuccessCode;
 
 import java.io.IOException;
@@ -23,8 +21,6 @@ import java.util.Map;
 public class KakaoLoginController {
 
     private final KakaoService kakaoService;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     @PostMapping("/auth/kakao")
     public ServnowResponse<UserLoginResponse> login(

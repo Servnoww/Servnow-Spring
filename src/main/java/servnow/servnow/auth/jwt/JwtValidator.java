@@ -4,15 +4,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import servnow.servnow.common.code.AuthErrorCode;
 import servnow.servnow.common.exception.UnauthorizedException;
 
-import static com.mysql.cj.conf.PropertyKey.logger;
 import static servnow.servnow.auth.filter.JwtAuthenticationFilter.BEARER;
 
 @RequiredArgsConstructor
@@ -24,9 +21,7 @@ public class JwtValidator {
 
     public void validateAccessToken(String accessToken) {
         try {
-            logger.info("지금은.....?");
             Claims claims = parseToken(accessToken);
-            logger.info("지금은.....?");
 
             String role = claims.get(JwtGenerator.USER_ROLE_CLAIM_NAME, String.class);
             if (role == null) {
@@ -35,7 +30,6 @@ public class JwtValidator {
         } catch (ExpiredJwtException e) {
             throw new UnauthorizedException(AuthErrorCode.EXPIRED_ACCESS_TOKEN);
         } catch (JwtException e) {
-            System.out.println("왜안돼ㅐㅐㅐㅐㅐㅐ"+e.getMessage());
             throw new UnauthorizedException(AuthErrorCode.INVALID_ACCESS_TOKEN_VALUE);
         } catch (Exception e) {
             throw new UnauthorizedException(AuthErrorCode.INVALID_ACCESS_TOKEN_VALUE);

@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtProvider {
     private final JwtGenerator jwtGenerator;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     public JwtProvider(JwtGenerator jwtGenerator) {
         this.jwtGenerator = jwtGenerator;
     }

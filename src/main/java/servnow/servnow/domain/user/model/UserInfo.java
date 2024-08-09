@@ -3,7 +3,6 @@ package servnow.servnow.domain.user.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDate;
-import java.util.Date;
 
 import lombok.*;
 import servnow.servnow.domain.common.BaseTimeEntity;

@@ -14,4 +14,9 @@ public class UserInfoFinder {
   public UserInfo findByUserId(final long userId){
     return userInfoRepository.findByUserId(userId).orElseThrow();
   }
+
+  public boolean isEmailDuplicate(String email) {
+    return userInfoRepository.existsByEmail(email);
+  }
+
 }

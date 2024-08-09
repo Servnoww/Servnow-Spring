@@ -18,7 +18,7 @@ public class UserCommandService {
 
     private final UserInfoRepository userInfoRepository;
     private final UserRepository userRepository;
-    private final UserValidationService userValidationService;
+    private final UserInfoFinder userInfoFinder;
     public void profileSave(SaveEditProfilePageRequest request) {
         User user = userRepository.findById(2L)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_FOUND));
@@ -40,7 +40,7 @@ public class UserCommandService {
 
         // 프로필과 Serial ID는 항상 업데이트 가능
         userInfo.setProfile_url(request.profileUrl());
-        if (userValidationService.isEmailDuplicate(request.serialId())) {
+        if (userInfoFinder.isEmailDuplicate(request.serialId())) {
             throw new BadRequestException(UserErrorCode.DUPLICATE_SERIAL_ID);
         }
         user.setSerialId(request.serialId());

@@ -3,9 +3,11 @@ package servnow.servnow.api.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.user.dto.response.EditProfilePageResponse;
 import servnow.servnow.api.user.dto.response.KakaoEditProfilePageResponse;
 import servnow.servnow.api.user.dto.response.MyPageResponse;
+import servnow.servnow.common.code.CommonSuccessCode;
 import servnow.servnow.common.code.UserErrorCode;
 import servnow.servnow.common.code.UserInfoErrorCode;
 import servnow.servnow.common.exception.NotFoundException;
@@ -22,7 +24,8 @@ public class UserQueryService {
 
     private final UserInfoRepository userInfoRepository;
     private final UserRepository userRepository;
-    private final UserValidationService userValidationService;
+    private final UserInfoFinder userInfoFinder;
+    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public MyPageResponse getMyPage() {
@@ -49,10 +52,23 @@ public class UserQueryService {
     }
 
     public boolean emailDuplicate(String email) {
-        return userValidationService.isEmailDuplicate(email);
+        return userInfoFinder.isEmailDuplicate(email);
     }
 
     public boolean getSerialIdDuplicate(String serialId) {
         return userRepository.existsBySerialId(serialId);
+    }
+
+    public ServnowResponse<Void> identityVerification(String email) throws Exception {
+        if (emailDuplicate(email)) {
+            return ServnowResponse.fail(UserErrorCode.EMAIL_DUPLICATE);
+        }
+        String confirm = emailService.sendSimpleMessage(email);
+
+        if (confirm.isEmpty()) {
+            return ServnowResponse.fail(UserErrorCode.SEND_CERTIFICATION_NUMBER);
+        } else {
+            return ServnowResponse.success(CommonSuccessCode.OK);
+        }
     }
 }

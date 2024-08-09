@@ -25,7 +25,6 @@ public class UserController {
 
     private final UserCommandService userCommandService;
     private final UserQueryService userQueryService;
-    private final EmailService emailService;
 
 
     // 아직 유저 정보를 넘기는 방식이 정해지지 않아서 UserQueryService에서 userId값을 고정하여 테스트 함
@@ -48,22 +47,8 @@ public class UserController {
 
 
     @PostMapping("/users/me/info/identity-verification")
-    public ServnowResponse<Void> identityVerification(@RequestBody EmailDuplicateRequest request) {
-
-        if (userQueryService.emailDuplicate(request.email())) {
-            return ServnowResponse.fail(UserErrorCode.EMAIL_DUPLICATE);
-        }
-        String confirm;
-        try {
-            confirm = emailService.sendSimpleMessage(request.email());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        if (confirm.isEmpty()) {
-            return ServnowResponse.fail(UserErrorCode.SEND_CERTIFICATION_NUMBER);
-        } else {
-            return ServnowResponse.success(CommonSuccessCode.OK);
-        }
+    public ServnowResponse<Void> identityVerification(@RequestBody EmailDuplicateRequest request) throws Exception {
+        return userQueryService.identityVerification(request.email());
     }
 
     @PostMapping("/users/me/info/certification")
@@ -75,7 +60,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/users/me/info/save")
+    @PatchMapping("/users/me/info/save")
     public ServnowResponse<SaveEditProfilePageRequest> profileSave(@RequestBody final SaveEditProfilePageRequest request) {
         // 이메일이 변경되었고, 인증번호가 있는 경우
         if (request.email() != null && !request.email().isEmpty() &&
@@ -87,7 +72,7 @@ public class UserController {
             userCommandService.profileSave(request);
             return ServnowResponse.success(CommonSuccessCode.OK);
         } else {
-            System.out.println("COntroller out");
+            System.out.println("Controller out");
             return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
         }
     }

@@ -1,5 +1,6 @@
 package servnow.servnow.api.auth.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -27,14 +28,21 @@ public class KakaoLoginController {
 
     @PostMapping("/auth/kakao")
     public ServnowResponse<UserLoginResponse> login(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) final String token,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) final String accessToken,
             @RequestParam String name,
             @RequestParam String platform) throws IOException {
-        String accessToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+        String token = accessToken.startsWith("Bearer ") ? accessToken.substring(7) : accessToken;
         UserLoginRequest request = new UserLoginRequest(name, platform);
-        final UserLoginResponse response = kakaoService.login(accessToken, request);
+        final UserLoginResponse response = kakaoService.login(token, request);
 
         return ServnowResponse.success(CommonSuccessCode.OK, response);
     }
 
+    @PostMapping("/auth/kakao/logout")
+    public ServnowResponse kakaoLogout(@RequestHeader("Authorization") String accessToken) throws JsonProcessingException {
+        String token = accessToken.replace("Bearer ", "");
+        kakaoService.kakaoDisconnect(token);
+
+        return ServnowResponse.success(CommonSuccessCode.OK);
+    }
 }

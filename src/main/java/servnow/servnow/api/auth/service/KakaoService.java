@@ -83,8 +83,8 @@ public class KakaoService {
 
 //    private void saveUser(final User user) {
 //        userUpdater.saveUser(user);
-////        UserInfo userInfo = UserInfo.createMemberInfo(user, null);
-////        userInfoUpdater.saveUserInfo(userInfo);
+//        UserInfo userInfo = UserInfo.createMemberInfo(user, null);
+//        userInfoUpdater.saveUserInfo(userInfo);
 //    }
 
      private void saveUser(User user, String nickname, String gender, String email, LocalDate birthDate, String url) {
@@ -177,6 +177,6 @@ public class KakaoService {
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
         Long id = jsonNode.get("id").asLong();
-//        System.out.println("로그아웃 성공 (serialId): "+id);
+        System.out.println("로그아웃 성공 (serialId): "+id);
     }
 }

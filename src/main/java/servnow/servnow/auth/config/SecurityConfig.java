@@ -24,7 +24,7 @@ public class SecurityConfig {
     private final JwtValidator jwtValidator;
     private final JwtProvider jwtProvider;
 
-    private static final String[] whiteList = {"/api/v1/auth/kakao", "/api/v1/auth/reissue"};
+    private static final String[] whiteList = {"/api/v1/auth/kakao", "/api/v1/auth/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

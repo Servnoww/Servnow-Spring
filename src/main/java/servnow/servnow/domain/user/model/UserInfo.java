@@ -54,11 +54,11 @@ public class UserInfo extends BaseTimeEntity {
 
     public static UserInfo createMemberInfo(
             final User user,
-            final String refreshToken,
             final String nickname,
             final String gender,
             final String email,
             final LocalDate birthDate,
+            final String refreshToken,
             final String url
             ) {
         return UserInfo.builder()
@@ -68,7 +68,7 @@ public class UserInfo extends BaseTimeEntity {
                 .nickname(nickname)
                 .birth(birthDate)
                 .email(email)
-                .gender(Gender.valueOf(gender))
+                .gender(Gender.getEnumGenderFromStringGender(gender))
                 .point(0)
                 .level(Level.COMMONER)
                 .build();

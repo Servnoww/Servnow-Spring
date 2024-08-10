@@ -90,7 +90,7 @@ public class KakaoService {
 
         if (userInfoFinder == null) {
             UserInfo newUserInfo = UserInfo.createMemberInfo(
-                    user, null, nickname, gender, email, birthDate, url);
+                    user, nickname, gender, email, birthDate, null, url);
             userInfoRepository.save(newUserInfo);
         } else {
 //            userInfoFinder.update(nickname, gender, email, birthDate, url);

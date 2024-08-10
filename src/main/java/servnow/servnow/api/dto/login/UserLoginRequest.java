@@ -12,11 +12,13 @@ public record UserLoginRequest(
         @Nullable
         String password,
         @Nullable
+        String repassword,
+        @Nullable
         String email,
         @Nullable
         String nickname,
         @Nullable
-        Gender gender,
+        String gender,
         @Nullable
         LocalDate birth
 ){}

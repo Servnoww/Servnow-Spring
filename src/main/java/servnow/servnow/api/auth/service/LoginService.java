@@ -5,13 +5,17 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
 import servnow.servnow.api.user.service.UserInfoFinder;
 import servnow.servnow.auth.jwt.JwtProvider;
 import servnow.servnow.auth.jwt.Token;
+import servnow.servnow.common.code.LoginErrorCode;
+import servnow.servnow.common.exception.BadRequestException;
 import servnow.servnow.domain.user.model.User;
 import servnow.servnow.domain.user.model.UserInfo;
+import servnow.servnow.domain.user.model.enums.Gender;
 import servnow.servnow.domain.user.model.enums.Platform;
 import servnow.servnow.domain.user.repository.UserInfoRepository;
 import servnow.servnow.domain.user.repository.UserRepository;
@@ -59,24 +63,42 @@ public class LoginService {
 
 		Optional<User> existingUser = userRepository.findBySerialId(request.serialId());
 		if (existingUser.isPresent()) {
-			throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
+			throw new BadRequestException(LoginErrorCode.ALREADY_EXISTED_ID);
 		}
 
-		// 비밀번호 암호화
-//		String encodedPassword = passwordEncoder.encode(request.password());
+		if (!request.password().equals(request.repassword())) {
+			throw new BadRequestException(LoginErrorCode.PASSWORDS_DO_NOT_MATCH);
+		} else {
+			User.builder().password(request.password()).build();
+		}
 
-		User newUser = createUser(
-				request.email(),
-				Platform.SERVNOW
-		);
-		User.builder().password(request.password()).build();
-		userRepository.save(newUser);
+		if (isUserInfoValid(request)) {
+			// 유저 생성
+			User newUser = createUser(
+					request.serialId(),
+					Platform.SERVNOW
+			);
+			newUser.setPassword(request.password());
 
-		UserInfo newUserInfo = UserInfo.createMemberInfo(
-				newUser, null, request.nickname(), String.valueOf(request.gender()), request.email(), LocalDate.now(), "default_url");
-		userInfoRepository.save(newUserInfo);
+			// 유저 저장
+			userRepository.save(newUser);
 
-		// JWT 토큰 생성
-		return jwtProvider.issueTokens(newUser.getId(), newUser.getUserRole().getValue());
-	}
+			// 유저 정보 생성 및 저장
+			UserInfo newUserInfo = UserInfo.createMemberInfo(
+					newUser, request.nickname(), request.gender(), request.email(), LocalDate.now(), null, "default_url");
+			userInfoRepository.save(newUserInfo);
+
+			// JWT 토큰 생성
+			return jwtProvider.issueTokens(newUser.getId(), newUser.getUserRole().getValue());
+		} else {
+			throw new BadRequestException(LoginErrorCode.MISSING_REQUIRED_FIELD);
+		}
+    }
+	private boolean isUserInfoValid (UserLoginRequest request){
+			return request.serialId() != null && !request.serialId().isBlank()
+					&& request.password() != null && !request.password().isBlank()
+					&& request.nickname() != null && !request.nickname().isBlank()
+					&& request.gender() != null && !request.gender().isBlank()
+					&& request.email() != null && !request.email().isBlank();
+		}
 }

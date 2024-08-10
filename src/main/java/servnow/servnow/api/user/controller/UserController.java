@@ -8,21 +8,15 @@ import servnow.servnow.api.dto.ServnowResponse;
 import org.springframework.web.bind.annotation.*;
 import servnow.servnow.api.result.dto.response.MySurveysResultResponse;
 import servnow.servnow.api.result.service.ResultQueryService;
-import servnow.servnow.api.user.controller.response.MyPageResponse;
+import servnow.servnow.api.user.dto.response.MyPageResponse;
 import servnow.servnow.api.user.service.UserCommandService;
 import servnow.servnow.api.user.service.UserQueryService;
-import org.springframework.web.bind.annotation.*;
-import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
-import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
-import servnow.servnow.api.user.service.EmailService;
-import servnow.servnow.api.user.dto.response.EditProfilePageResponse;
 import servnow.servnow.common.code.CommonSuccessCode;
 
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class UserController {
-
     private final UserCommandService userCommandService;
     private final UserQueryService userQueryService;
     private final ResultQueryService resultQueryService;
@@ -38,5 +32,5 @@ public class UserController {
     public ServnowResponse<MySurveysResultResponse> getMySurveysResult(@PathVariable(name = "id") long surveyId) {
         MySurveysResultResponse result = resultQueryService.getMySurveysResult(surveyId);
         return ServnowResponse.success(CommonSuccessCode.OK, result);
-    }
-}
+    }}
+

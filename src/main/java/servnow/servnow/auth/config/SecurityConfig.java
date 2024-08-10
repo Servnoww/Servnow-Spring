@@ -24,8 +24,11 @@ public class SecurityConfig {
     private final JwtValidator jwtValidator;
     private final JwtProvider jwtProvider;
 
-    private static final String[] whiteList = {"/api/v1/auth/kakao", "/api/v1/auth/**"};
-
+   private static final String[] whiteList = {"/api/v1/auth/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-resources/**"
+    };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http

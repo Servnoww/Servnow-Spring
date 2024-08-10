@@ -54,7 +54,13 @@ public class UserInfo extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Level level;
 
-    public void updatePoint(int increment) {
+    public void incrementPoint(int increment) {
         this.point += increment;
+    }
+    public void setProfile_url(String profileUrl) {
+        this.profile_url = profileUrl;
+    }
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

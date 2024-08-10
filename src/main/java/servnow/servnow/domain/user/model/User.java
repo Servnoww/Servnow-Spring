@@ -58,6 +58,14 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private List<SurveyResult> surveyResults = new ArrayList<>();
 
+    public void setSerialId(String serialId) {
+        this.serialId = serialId;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
+    }
+  
     public static User createUser(final String serialId, final Platform platform) {
         return User.builder()
                 .serialId(serialId)

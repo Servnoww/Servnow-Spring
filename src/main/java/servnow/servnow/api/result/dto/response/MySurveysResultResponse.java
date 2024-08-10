@@ -5,11 +5,15 @@ import java.util.List;
 public record MySurveysResultResponse(
         Long surveyId,
         int response,
-        String sectionTitle,
-        String sectionContent,
-        int nextSection,
-        List<QuestionResult> questions
+        List<SectionResult> sections
 ) {
+    public record SectionResult(
+            String sectionTitle,
+            String sectionContent,
+            int nextSection,
+            List<QuestionResult> questions
+    ) {}
+
     public record QuestionResult(
             int questionNumber,
             String questionContent,

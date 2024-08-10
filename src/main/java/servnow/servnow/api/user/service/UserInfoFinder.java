@@ -18,4 +18,9 @@ public class UserInfoFinder {
         () -> new NotFoundException(UserInfoErrorCode.USER_NOT_FOUND)
     );
   }
+
+  public boolean isEmailDuplicate(String email) {
+    return userInfoRepository.existsByEmail(email);
+  }
+
 }

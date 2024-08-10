@@ -2,7 +2,7 @@ package servnow.servnow.api.survey.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import servnow.servnow.api.user.controller.response.MySurveyResponse;
+import servnow.servnow.api.user.dto.response.MySurveyResponse;
 import servnow.servnow.common.code.SurveyErrorCode;
 import servnow.servnow.common.exception.NotFoundException;
 import servnow.servnow.domain.survey.model.Survey;

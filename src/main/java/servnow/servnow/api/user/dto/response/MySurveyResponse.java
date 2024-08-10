@@ -1,11 +1,9 @@
-package servnow.servnow.api.user.controller.response;
+package servnow.servnow.api.user.dto.response;
 
 import servnow.servnow.domain.survey.model.Survey;
 import servnow.servnow.domain.survey.model.enums.CharacterType;
-import servnow.servnow.domain.surveyresult.model.SurveyResult;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public record MySurveyResponse(
         long surveyId,

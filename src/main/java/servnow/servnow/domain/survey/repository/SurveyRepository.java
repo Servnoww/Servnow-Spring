@@ -22,4 +22,9 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
   @Query("SELECT s FROM Survey s LEFT JOIN s.surveyResults sr WHERE s.user.id = :userId GROUP BY s.id ORDER BY COUNT(sr.id) DESC")
   List<Survey> findAllOrderByParticipantCountDesc(@Param("userId") long userId);
 
+  @Query("select s from Survey s left join fetch s.surveyResults order by s.expiredAt desc")
+  List<Survey> findAllOrderByExpiredAtDesc();
+
+  @Query("select s from Survey s left join fetch s.surveyResults order by size(s.surveyResults) desc")
+  List<Survey> findAllOrderByParticipantsDesc();
 }

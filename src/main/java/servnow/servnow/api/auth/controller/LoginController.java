@@ -55,7 +55,7 @@ public class LoginController {
 
     @PostMapping("/auth/register")
 	public ServnowResponse<String> register(@RequestBody UserLoginRequest request) {
-		Token token = loginService.register(request);
+		loginService.register(request);
 		return ServnowResponse.success(CommonSuccessCode.OK, "회원가입이 완료되었습니다.");
 	}
 }

@@ -34,7 +34,7 @@ public class LoginService {
 	private final UserInfoFinder userInfoFinder;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// 일반 로그인 메서드
+	// 일반 로그인
 	public UserLoginResponse login(UserLoginRequest request) {
         logger.info("안녕!");
 		Optional<User> optionalUser = userRepository.findBySerialId(request.serialId());
@@ -45,11 +45,6 @@ public class LoginService {
 
 		User user = optionalUser.get();
 
-		// 비밀번호 검증
-//		if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-//			throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-//		}
-
 		// 토큰 생성
 		Token issuedToken = jwtProvider.issueTokens(user.getId(), user.getUserRole().getValue());
 		UserInfo userInfo = userInfoFinder.findByUserId(user.getId());
@@ -58,47 +53,65 @@ public class LoginService {
 		return UserLoginResponse.of(issuedToken, true);
 	}
 
-	// 회원가입 메서드
-	public Token register(UserLoginRequest request) {
-
+	// 회원가입
+	public void register(UserLoginRequest request) {
+		// 아이디 중복 확인
 		Optional<User> existingUser = userRepository.findBySerialId(request.serialId());
 		if (existingUser.isPresent()) {
 			throw new BadRequestException(LoginErrorCode.ALREADY_EXISTED_ID);
 		}
 
+		// 비밀번호 일치 확인
 		if (!request.password().equals(request.repassword())) {
 			throw new BadRequestException(LoginErrorCode.PASSWORDS_DO_NOT_MATCH);
-		} else {
-			User.builder().password(request.password()).build();
 		}
 
-		if (isUserInfoValid(request)) {
-			// 유저 생성
-			User newUser = createUser(
-					request.serialId(),
-					Platform.SERVNOW
-			);
-			newUser.setPassword(request.password());
+		// 비밀번호 형식 검증
+		if (!isValidPassword(request.password())) {
+			throw new BadRequestException(LoginErrorCode.INVALID_PASSWORD_FORMAT);
+		}
 
-			// 유저 저장
-			userRepository.save(newUser);
+		// 이메일 형식 검증
+        assert request.email() != null;
+        if (!isValidEmail(request.email())) {
+			throw new BadRequestException(LoginErrorCode.INVALID_EMAIL_FORMAT);
+		}
 
-			// 유저 정보 생성 및 저장
-			UserInfo newUserInfo = UserInfo.createMemberInfo(
-					newUser, request.nickname(), request.gender(), request.email(), LocalDate.now(), null, "default_url");
-			userInfoRepository.save(newUserInfo);
-
-			// JWT 토큰 생성
-			return jwtProvider.issueTokens(newUser.getId(), newUser.getUserRole().getValue());
-		} else {
+		// 필수 정보 확인
+		if (!isUserInfoValid(request)) {
 			throw new BadRequestException(LoginErrorCode.MISSING_REQUIRED_FIELD);
 		}
-    }
-	private boolean isUserInfoValid (UserLoginRequest request){
-			return request.serialId() != null && !request.serialId().isBlank()
-					&& request.password() != null && !request.password().isBlank()
-					&& request.nickname() != null && !request.nickname().isBlank()
-					&& request.gender() != null && !request.gender().isBlank()
-					&& request.email() != null && !request.email().isBlank();
-		}
+
+		User newUser = createUser(request.serialId(), Platform.SERVNOW);
+		newUser.setPassword(request.password());
+
+		userRepository.save(newUser);
+
+		UserInfo newUserInfo = UserInfo.createMemberInfo(
+				newUser, request.nickname(), request.gender(), request.email(), LocalDate.now(), null, "");
+		userInfoRepository.save(newUserInfo);
+	}
+
+	// 비밀번호 유효성 검증
+	private boolean isValidPassword(String password) {
+		String regex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,20}$";
+		return password.matches(regex);
+	}
+
+	// 이메일 유효성 검증
+	private boolean isValidEmail(String email) {
+		String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+		return email.matches(regex);
+	}
+
+	// 사용자 정보 유효성 검증
+	private boolean isUserInfoValid(UserLoginRequest request) {
+		return request.serialId() != null && !request.serialId().isEmpty() &&
+			   request.password() != null && !request.password().isEmpty() &&
+			   request.repassword() != null && !request.repassword().isEmpty() &&
+			   request.nickname() != null && !request.nickname().isEmpty() &&
+			   request.gender() != null && !request.gender().isEmpty() &&
+			   request.email() != null && !request.email().isEmpty();
+	}
+
 }

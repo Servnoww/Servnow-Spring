@@ -24,7 +24,8 @@ public class SecurityConfig {
     private final JwtValidator jwtValidator;
     private final JwtProvider jwtProvider;
 
-   private static final String[] whiteList = {"/api/v1/auth/**",
+   private static final String[] whiteList = {
+           "/api/v1/auth/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-resources/**"

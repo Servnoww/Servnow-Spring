@@ -12,6 +12,5 @@ public class UserUpdater {
     private final UserRepository userRepository;
 
     public void saveUser(final User user) {
-        userRepository.save(user);
     }
 }

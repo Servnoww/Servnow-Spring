@@ -10,15 +10,5 @@ public record UserLoginRequest(
         @Nullable
         String serialId,
         @Nullable
-        String password,
-        @Nullable
-        String repassword,
-        @Nullable
-        String email,
-        @Nullable
-        String nickname,
-        @Nullable
-        String gender,
-        @Nullable
-        LocalDate birth
+        String password
 ){}

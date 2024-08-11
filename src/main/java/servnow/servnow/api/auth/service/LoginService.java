@@ -1,11 +1,11 @@
 package servnow.servnow.api.auth.service;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import servnow.servnow.api.dto.ServnowResponse;
+import org.springframework.transaction.annotation.Transactional;
+import servnow.servnow.api.dto.login.UserJoinRequest;
 import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
 import servnow.servnow.api.user.service.UserInfoFinder;
@@ -15,7 +15,6 @@ import servnow.servnow.common.code.LoginErrorCode;
 import servnow.servnow.common.exception.BadRequestException;
 import servnow.servnow.domain.user.model.User;
 import servnow.servnow.domain.user.model.UserInfo;
-import servnow.servnow.domain.user.model.enums.Gender;
 import servnow.servnow.domain.user.model.enums.Platform;
 import servnow.servnow.domain.user.repository.UserInfoRepository;
 import servnow.servnow.domain.user.repository.UserRepository;
@@ -36,12 +35,10 @@ public class LoginService {
 
 	// 일반 로그인
 	public UserLoginResponse login(UserLoginRequest request) {
-        logger.info("안녕!");
 		Optional<User> optionalUser = userRepository.findBySerialId(request.serialId());
 		if (optionalUser.isEmpty()) {
-			throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+			throw new BadRequestException(LoginErrorCode.USER_NOT_FOUND);
 		}
-        logger.info("안녕!ㅎㅎ");
 
 		User user = optionalUser.get();
 
@@ -54,7 +51,8 @@ public class LoginService {
 	}
 
 	// 회원가입
-	public void register(UserLoginRequest request) {
+	@Transactional
+	public void join(UserJoinRequest request) {
 		// 아이디 중복 확인
 		Optional<User> existingUser = userRepository.findBySerialId(request.serialId());
 		if (existingUser.isPresent()) {
@@ -105,7 +103,7 @@ public class LoginService {
 	}
 
 	// 사용자 정보 유효성 검증
-	private boolean isUserInfoValid(UserLoginRequest request) {
+	private boolean isUserInfoValid(UserJoinRequest request) {
 		return request.serialId() != null && !request.serialId().isEmpty() &&
 			   request.password() != null && !request.password().isEmpty() &&
 			   request.repassword() != null && !request.repassword().isEmpty() &&

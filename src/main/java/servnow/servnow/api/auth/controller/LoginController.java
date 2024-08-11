@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import servnow.servnow.api.auth.service.KakaoService;
 import servnow.servnow.api.auth.service.LoginService;
 import servnow.servnow.api.dto.ServnowResponse;
+import servnow.servnow.api.dto.login.UserJoinRequest;
 import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
 import servnow.servnow.auth.jwt.Token;
@@ -22,16 +23,17 @@ public class LoginController {
     private final KakaoService kakaoService;
     private final LoginService loginService;
 
+    // 카카오 로그인
     @PostMapping("/auth/kakao")
     public ServnowResponse<UserLoginResponse> kakaoLogin(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) final String accessToken,
-            @RequestParam String platform) throws IOException {
+            @RequestHeader(HttpHeaders.AUTHORIZATION) final String accessToken) throws IOException {
         String token = accessToken.startsWith("Bearer ") ? accessToken.substring(7) : accessToken;
-        final UserLoginResponse response = kakaoService.login(token, platform);
+        final UserLoginResponse response = kakaoService.login(token, "KAKAO");
 
         return ServnowResponse.success(CommonSuccessCode.OK, response);
     }
 
+    // 카카오 로그아웃
     @PostMapping("/auth/kakao/logout")
     public ServnowResponse kakaoLogout(@RequestHeader("Authorization") String accessToken) throws JsonProcessingException {
         String token = accessToken.replace("Bearer ", "");
@@ -40,22 +42,17 @@ public class LoginController {
         return ServnowResponse.success(CommonSuccessCode.OK);
     }
 
-
+    // 일반 로그인
 	@PostMapping("/auth/login")
 	public ServnowResponse<UserLoginResponse> login(@RequestBody UserLoginRequest request) {
 		UserLoginResponse userLoginResponse = loginService.login(request);
 		return ServnowResponse.success(CommonSuccessCode.OK, userLoginResponse);
 	}
 
-/*	@PostMapping("/auth/register")
-	public ServnowResponse<String> register(@RequestBody UserLoginRequest request) {
-		Token token = loginService.register(request);
-		return ServnowResponse.success(CommonSuccessCode.OK, "회원가입이 완료되었습니다.");
-	}*/
-
-    @PostMapping("/auth/register")
-	public ServnowResponse<String> register(@RequestBody UserLoginRequest request) {
-		loginService.register(request);
+    // 일반 회원가입
+    @PostMapping("/auth/join")
+	public ServnowResponse<String> join(@RequestBody UserJoinRequest request) {
+		loginService.join(request);
 		return ServnowResponse.success(CommonSuccessCode.OK, "회원가입이 완료되었습니다.");
 	}
 }

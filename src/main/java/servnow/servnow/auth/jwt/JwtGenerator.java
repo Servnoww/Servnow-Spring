@@ -17,7 +17,6 @@ import java.util.Date;
 public class JwtGenerator {
     @Value("${spring.jwt.secret.key}")
     private String JWT_SECRET;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60; 	//1시간
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 14;  // 14일
@@ -31,9 +30,9 @@ public class JwtGenerator {
     }
 
     private Key getSigningKey() {
-        byte[] keyBytes = Base64.getUrlDecoder().decode(JWT_SECRET);
-        return Keys.hmacShaKeyFor(keyBytes);
-//        return Keys.secretKeyFor(SignatureAlgorithm.HS512);
+//        byte[] keyBytes = Base64.getUrlDecoder().decode(JWT_SECRET);
+//        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.secretKeyFor(SignatureAlgorithm.HS512);
     }
 
     private long calculateExpirationTime(boolean isAccessToken) {
@@ -42,7 +41,6 @@ public class JwtGenerator {
         }
         return REFRESH_TOKEN_EXPIRE_TIME;
     }
-
     public String generateToken(Long serialId, String role, boolean isAccessToken) {
         final Date now = generateNowDate();
         final Date expiration = generateExpirationDate(isAccessToken, now);

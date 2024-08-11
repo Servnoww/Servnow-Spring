@@ -4,11 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
 import servnow.servnow.api.user.service.UserFinder;
 import servnow.servnow.api.user.service.UserInfoFinder;
@@ -16,7 +17,8 @@ import servnow.servnow.auth.jwt.JwtProvider;
 import servnow.servnow.auth.jwt.Token;
 import servnow.servnow.domain.user.model.User;
 import servnow.servnow.domain.user.model.UserInfo;
-import servnow.servnow.domain.user.model.enums.*;
+import servnow.servnow.domain.user.model.enums.Platform;
+import servnow.servnow.domain.user.model.enums.UserStatus;
 import servnow.servnow.domain.user.repository.UserInfoRepository;
 import servnow.servnow.domain.user.repository.UserRepository;
 
@@ -26,19 +28,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
 import static servnow.servnow.domain.user.model.User.createUser;
+import static servnow.servnow.domain.user.model.enums.UserStatus.ACTIVE;
 
 @Service
 @AllArgsConstructor
 public class KakaoService {
-	private final UserRepository userRepository;
-	private final UserInfoRepository userInfoRepository;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final UserRepository userRepository;
+    private final UserInfoRepository userInfoRepository;
     private final JwtProvider jwtProvider;
-    private UserFinder userFinder;
-    private UserInfoFinder userInfoFinder;
-    private UserUpdater userUpdater;
+    private final UserFinder userFinder;
+    private final UserInfoFinder userInfoFinder;
 
-     public UserLoginResponse login(String accessToken, String pf) throws IOException {
+    public UserLoginResponse login(String accessToken, String pf) throws IOException {
         HashMap<String, Object> userInfo = getUserInfo(accessToken);
 
         String serialId = (String) userInfo.getOrDefault("id", "unknown");
@@ -51,25 +54,36 @@ public class KakaoService {
         Platform platform = Platform.getEnumPlatformFromStringPlatform(pf);
         boolean isRegistered = userFinder.isRegisteredUser(platform, serialId);
 
-        User findUser = loadOrCreateUser(Platform.KAKAO, serialId, isRegistered);
-        saveUser(findUser, nickname, gender, email, birthDate, url);
+        User user = userFinder.findUserByPlatFormAndSeralId(platform, serialId)
+                .orElseGet(() -> createUserAndSave(platform, serialId, nickname, gender, email, birthDate, url));
 
-        // jwt 토큰 생성
-        Token issuedToken = generateTokens(findUser.getId());
+        Token issuedToken = generateTokens(user.getId());
 
         return UserLoginResponse.of(issuedToken, isRegistered);
     }
 
+    private User createUserAndSave(Platform platform, String serialId, String nickname, String gender, String email, LocalDate birthDate, String url) {
+        User newUser = createUser(serialId, platform);
+        newUser.updateStatus(UserStatus.ACTIVE);
+        userRepository.save(newUser);
+
+        UserInfo newUserInfo = UserInfo.createMemberInfo(newUser, nickname, gender, email, birthDate, null, url);
+        userInfoRepository.save(newUserInfo);
+
+        return newUser;
+    }
+
     private Token generateTokens(final Long id) {
         Token issuedTokens = jwtProvider.issueTokens(id, getUserRole(id));
-        UserInfo findInfoUser = userInfoFinder.findByUserId(id);
-        findInfoUser.setRefreshToken(issuedTokens.refreshToken());
+        UserInfo userInfo = userInfoFinder.findByUserId(id);
+        userInfo.setRefreshToken(issuedTokens.refreshToken());
+        userInfoRepository.save(userInfo); // Ensure refresh token is saved
         return issuedTokens;
     }
 
-     private User loadOrCreateUser(final Platform platform, final String serialId, final boolean isRegistered) {
-        return userFinder.findUserByPlatFormAndSeralId(platform, serialId)
-//                .map(user -> updateOrFindUserInfo(user, isRegistered))
+    private User loadOrCreateUser(final Platform platform, final String serialId, final boolean isRegistered) {
+         return userFinder.findUserByPlatFormAndSeralId(platform, serialId)
+                .map(user -> updateOrFindUserInfo(user, isRegistered))
                 .orElseGet(() -> {
                     User newUser = createUser(
                             serialId,
@@ -79,31 +93,35 @@ public class KakaoService {
                 });
     }
 
-//    private void saveUser(final User user) {
-//        userUpdater.saveUser(user);
-//        UserInfo userInfo = UserInfo.createMemberInfo(user, null);
-//        userInfoUpdater.saveUserInfo(userInfo);
-//    }
-
-     private void saveUser(User user, String nickname, String gender, String email, LocalDate birthDate, String url) {
-        userUpdater.saveUser(user);
-
-        if (userInfoFinder == null) {
-            UserInfo newUserInfo = UserInfo.createMemberInfo(
-                    user, nickname, gender, email, birthDate, null, url);
-            userInfoRepository.save(newUserInfo);
+    private User updateOrFindUserInfo(final User user, final boolean isRegistered) {
+        if (isRegistered) {
+            return user;
         } else {
-//            userInfoFinder.update(nickname, gender, email, birthDate, url);
-//            userInfoRepository.save(userInfoFinder);
+            return updateUserInfo(user);
         }
     }
 
+    private User updateUserInfo(final User user) {
+        user.updateStatus(ACTIVE);
+        user.updateDeletedAt(null);
+        return user;
+    }
 
-    // 사용자 정보 조회
+    private String getRefreshToken(final Long userId) {
+        return userInfoFinder.findByUserId(userId).getRefreshToken();
+    }
+
+    private void saveUser(User user, String nickname, String gender, String email, LocalDate birthDate, String url) {
+        userRepository.save(user);
+
+        UserInfo newUserInfo = UserInfo.createMemberInfo(
+                user, nickname, gender, email, birthDate, null, url);
+        userInfoRepository.save(newUserInfo);
+    }
+
     public HashMap<String, Object> getUserInfo(String accessToken) throws JsonProcessingException {
         HashMap<String, Object> userInfo = new HashMap<>();
 
-        // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -113,7 +131,7 @@ public class KakaoService {
         RestTemplate rt = new RestTemplate();
         ResponseEntity<String> response = rt.exchange(
                 "https://kapi.kakao.com/v2/user/me",
-                HttpMethod.GET, // GET 방식으로 요청
+                HttpMethod.GET,
                 kakaoUserInfoRequest,
                 String.class
         );
@@ -130,7 +148,6 @@ public class KakaoService {
         String nickname = element.path("properties").path("nickname").asText();
         String profileUrl = element.path("properties").path("profile_image").asText();
 
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate birthDate = LocalDate.parse(birthyear + birthday, formatter);
 
@@ -144,22 +161,15 @@ public class KakaoService {
         return userInfo;
     }
 
-
     private String getUserRole(final Long id) {
         return userFinder.findById(id).getUserRole().getValue();
     }
 
-    private String getRefreshToken(final Long id) {
-        return userInfoFinder.findByUserId(id).getRefreshToken();
-    }
-
-     public void kakaoDisconnect(String accessToken) throws JsonProcessingException {
-        // HTTP Header 생성
+    public void kakaoDisconnect(String accessToken) throws JsonProcessingException {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-type", "application/x-www-form-urlencoded;");
 
-        // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoLogoutRequest = new HttpEntity<>(headers);
         RestTemplate rt = new RestTemplate();
         ResponseEntity<String> response = rt.exchange(
@@ -169,12 +179,11 @@ public class KakaoService {
                 String.class
         );
 
-        // responseBody에 있는 정보 꺼내기
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
         Long id = jsonNode.get("id").asLong();
-        System.out.println("로그아웃 성공 (serialId): "+id);
+        System.out.println("로그아웃 성공 (serialId): " + id);
     }
 }

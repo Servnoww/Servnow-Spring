@@ -13,6 +13,7 @@ import servnow.servnow.domain.common.BaseTimeEntity;
 import servnow.servnow.domain.multiplechoiceresult.model.MultipleChoiceResult;
 import servnow.servnow.domain.question.model.enums.QuestionType;
 import servnow.servnow.domain.section.model.Section;
+import servnow.servnow.domain.subjectiveresult.model.SubjectiveResult;
 
 @Entity
 @Getter
@@ -57,6 +58,9 @@ public class Question extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "question")
     private List<MultipleChoiceResult> multipleChoiceResults = new ArrayList<>();
+
+    @OneToMany(mappedBy = "question")
+    private List<SubjectiveResult> subjectiveResults = new ArrayList<>();
 
     public static Question create(Section section, int questionOrder, String title, String content, QuestionType questionType, boolean isEssential, boolean isDuplicate, boolean hasNextSection){
         return Question.builder().section(section).questionOrder(questionOrder).title(title).content(content).questionType(questionType).isEssential(isEssential).isDuplicate(isDuplicate).hasNextSection(hasNextSection).build();

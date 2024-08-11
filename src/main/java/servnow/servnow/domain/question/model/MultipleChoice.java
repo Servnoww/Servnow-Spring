@@ -6,6 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import servnow.servnow.domain.multiplechoiceresult.model.MultipleChoiceResult;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,6 +31,10 @@ public class MultipleChoice {
     private String content;
 
     private Integer nextSectionNo;
+
+    @OneToMany(mappedBy = "multipleChoice")
+    private List<MultipleChoiceResult> multipleChoiceResults = new ArrayList<>();
+
 
     public static MultipleChoice create(Question question, String content, Integer nextSectionNo) {
         return MultipleChoice.builder().question(question).content(content).nextSectionNo(nextSectionNo).build();

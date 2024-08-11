@@ -61,12 +61,13 @@ public class User extends BaseTimeEntity {
     public void setSerialId(String serialId) {
         this.serialId = serialId;
     }
-    
+
     public void setPassword(String password) {
         this.password = password;
     }
-  
+
     public static User createUser(final String serialId, final Platform platform) {
+        System.out.println("ㅇㅇㅇ");
         return User.builder()
                 .serialId(serialId)
                 .platform(platform)

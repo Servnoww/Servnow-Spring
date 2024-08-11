@@ -1,6 +1,8 @@
 package servnow.servnow.api.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import servnow.servnow.common.code.UserErrorCode;
 import servnow.servnow.common.exception.NotFoundException;
@@ -21,7 +23,6 @@ public class UserFinder {
   public User findById(final long id) {
     return userRepository.findById(id).orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_FOUND));
   }
-
   public User getUserReference(final Long id) {
         return userRepository.getReferenceById(id);
     }

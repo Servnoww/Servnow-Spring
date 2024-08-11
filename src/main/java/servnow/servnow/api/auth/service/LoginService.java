@@ -86,7 +86,7 @@ public class LoginService {
 		userRepository.save(newUser);
 
 		UserInfo newUserInfo = UserInfo.createMemberInfo(
-				newUser, request.nickname(), request.gender(), request.email(), LocalDate.now(), null, "");
+				newUser, request.nickname(), request.gender(), request.email(), LocalDate.now(), null, null);
 		userInfoRepository.save(newUserInfo);
 	}
 

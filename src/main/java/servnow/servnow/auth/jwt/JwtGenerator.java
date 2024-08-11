@@ -9,12 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
 public class JwtGenerator {
-    @Value("${jwt.secret}")
+    @Value("${spring.jwt.secret.key}")
     private String JWT_SECRET;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -30,9 +31,9 @@ public class JwtGenerator {
     }
 
     private Key getSigningKey() {
-//        byte[] keyBytes = Base64.getUrlDecoder().decode(JWT_SECRET);
-//        return Keys.hmacShaKeyFor(keyBytes);
-        return Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        byte[] keyBytes = Base64.getUrlDecoder().decode(JWT_SECRET);
+        return Keys.hmacShaKeyFor(keyBytes);
+//        return Keys.secretKeyFor(SignatureAlgorithm.HS512);
     }
 
     private long calculateExpirationTime(boolean isAccessToken) {

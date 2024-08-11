@@ -27,7 +27,7 @@ public class MultipleChoiceResult extends BaseTimeEntity {
     @JoinColumn(name = "survey_result_id", nullable = false)
     private SurveyResult surveyResult;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "multiple_choice_id", nullable = false)
     private MultipleChoice multipleChoice;
 

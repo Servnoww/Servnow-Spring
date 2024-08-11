@@ -8,9 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import servnow.servnow.domain.user.model.UserInfo;
 
+import java.util.Optional;
+
 public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
   Optional<UserInfo> findByUserId(long userId);
+
 
   @Modifying
   @Query("update UserInfo u set u.point = u.point + :increment where u.id = :id")

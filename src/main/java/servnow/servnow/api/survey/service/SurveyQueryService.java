@@ -6,7 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 import servnow.servnow.api.section.service.SectionFinder;
 import servnow.servnow.api.survey.dto.response.SurveyGetResponse;
 import servnow.servnow.api.survey.dto.response.SurveyIntroGetResponse;
+import servnow.servnow.api.survey.dto.response.SurveySearchGetResponse;
 import servnow.servnow.domain.survey.model.Survey;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,5 +33,9 @@ public class SurveyQueryService {
     return survey.getSections().stream()
         .mapToInt(section -> section.getQuestions().size())
         .sum();
+  }
+
+  public List<SurveySearchGetResponse> searchSurvey(final Long userId, final String keyword, final boolean filter) {
+    return surveyFinder.findByKeyword(userId, keyword, filter);
   }
 }

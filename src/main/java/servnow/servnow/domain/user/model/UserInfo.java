@@ -3,17 +3,15 @@ package servnow.servnow.domain.user.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import java.time.LocalDate;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import servnow.servnow.domain.common.BaseTimeEntity;
 import servnow.servnow.domain.user.model.enums.Gender;
 import servnow.servnow.domain.user.model.enums.Level;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -54,13 +52,38 @@ public class UserInfo extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Level level;
 
-    public void incrementPoint(int increment) {
+    public static UserInfo createMemberInfo(
+            final User user,
+            final String nickname,
+            final String gender,
+            final String email,
+            final LocalDate birthDate,
+            final String refreshToken,
+            final String profile_url
+            ) {
+        return UserInfo.builder()
+                .user(user)
+                .refreshToken(refreshToken)
+                .nickname(nickname)
+                .birth(birthDate)
+                .email(email)
+                .profile_url(profile_url)
+                .gender(Gender.valueOf(gender))
+                .point(0)
+                .level(Level.COMMONER)
+                .build();
+  }
+  
+  public void updatePoint(int increment) {
         this.point += increment;
-    }
-    public void setProfile_url(String profileUrl) {
-        this.profile_url = profileUrl;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  }
+  public void incrementPoint(int increment) {
+      this.point += increment;
+  }
+  public void setProfile_url(String profileUrl) {
+      this.profile_url = profileUrl;
+  }
+  public void setEmail(String email) {
+      this.email = email;
+  }
 }

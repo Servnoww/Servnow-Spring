@@ -64,3 +64,4 @@ replay_pid*
 **/._.DS_Store
 
 /src/main/resources/*.yml
+/src/main/resources/*.properties

@@ -2,12 +2,7 @@ package servnow.servnow.api.survey.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.survey.dto.request.SurveyPostRequest;
 import servnow.servnow.api.survey.dto.response.SurveyGetResponse;
@@ -42,4 +37,5 @@ public class SurveyController {
   public ServnowResponse<SurveyGetResponse> getSurveySection(@PathVariable(name = "id") long surveyId, @PathVariable(name = "sectionOrder") int sectionOrder) {
     return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveySection(surveyId, sectionOrder));
   }
+
 }

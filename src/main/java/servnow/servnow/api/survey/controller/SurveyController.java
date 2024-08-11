@@ -8,6 +8,7 @@ import servnow.servnow.api.survey.dto.request.SurveyPostRequest;
 import servnow.servnow.api.survey.dto.response.HomeSurveyGetResponse;
 import servnow.servnow.api.survey.dto.response.SurveyGetResponse;
 import servnow.servnow.api.survey.dto.response.SurveyIntroGetResponse;
+import servnow.servnow.api.survey.dto.response.SurveySearchGetResponse;
 import servnow.servnow.api.survey.service.SurveyCommandService;
 import servnow.servnow.api.survey.service.SurveyQueryService;
 import servnow.servnow.common.code.CommonSuccessCode;
@@ -41,6 +42,11 @@ public class SurveyController {
     return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveySection(surveyId, sectionOrder));
   }
 
+  @GetMapping("/survey")
+  public ServnowResponse<List<SurveySearchGetResponse>> searchSurvey(@RequestParam(name = "keyword") String keyword, @RequestParam(name = "filter", defaultValue = "false") boolean filter) {
+    return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.searchSurvey(1L, keyword, filter));
+  }
+  
   @GetMapping("/survey/home")
   public ServnowResponse<List<HomeSurveyGetResponse>> getHome(@RequestParam(name = "sort", defaultValue = "deadline") String sort) {
     // 유저 임시 생성, 추후 아이디 로직 머지 후 고칠 예정

@@ -12,6 +12,12 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
   @Query("select s from Survey s join fetch s.sections sec where s.id = :id")
   Optional<Survey> findByIdWithSections(@Param("id") long id);
 
+  @Query("select s from Survey s left join fetch s.surveyResults sr where s.title like %:keyword%")
+  List<Survey> findAllByKeyword(@Param("keyword") String keyword);
+
+  @Query("select s from Survey s left join fetch s.surveyResults sr where s.title like %:keyword% and s.reward is not null")
+  List<Survey> findAllByKeywordWithFilter(@Param("keyword") String keyword);
+
   // userId로 Survey 목록 조회, createdAt 기준 오름차순 정렬
   List<Survey> findByUserIdOrderByCreatedAtAsc(long userId);
 

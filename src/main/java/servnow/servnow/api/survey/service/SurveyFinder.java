@@ -2,6 +2,7 @@ package servnow.servnow.api.survey.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import servnow.servnow.api.survey.dto.response.SurveySearchGetResponse;
 import servnow.servnow.api.survey.dto.response.HomeSurveyGetResponse;
 import servnow.servnow.api.user.dto.response.MySurveyResponse;
 import servnow.servnow.common.code.SurveyErrorCode;
@@ -21,6 +22,16 @@ public class SurveyFinder {
 
   public Survey findByIdWithSectionsAndQuestions(final long id) {
     return surveyRepository.findByIdWithSections(id).orElseThrow(() -> new NotFoundException(SurveyErrorCode.SURVEY_NOT_FOUND));
+  }
+
+  public List<SurveySearchGetResponse> findByKeyword(final long userId, final String keyword, final boolean filter) {
+    List<Survey> surveyList = filter
+      ? surveyRepository.findAllByKeywordWithFilter(keyword)
+      : surveyRepository.findAllByKeyword(keyword);
+
+    return surveyList.stream()
+            .map(survey -> SurveySearchGetResponse.of(survey, userId))
+            .collect(Collectors.toList());
   }
 
   public List<MySurveyResponse> findAllSurveys(final long userId, String sort) {

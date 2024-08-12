@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import servnow.servnow.common.code.AuthErrorCode;
 import servnow.servnow.common.exception.UnauthorizedException;
 
+import java.util.Arrays;
+
 import static servnow.servnow.auth.filter.JwtAuthenticationFilter.BEARER;
 
 @RequiredArgsConstructor
@@ -30,8 +32,7 @@ public class JwtValidator {
         } catch (ExpiredJwtException e) {
             throw new UnauthorizedException(AuthErrorCode.EXPIRED_ACCESS_TOKEN);
         } catch (JwtException e) {
-            throw new UnauthorizedException(AuthErrorCode.INVALID_ACCESS_TOKEN_VALUE);
-        } catch (Exception e) {
+//            System.out.println("제발 "+e);
             throw new UnauthorizedException(AuthErrorCode.INVALID_ACCESS_TOKEN_VALUE);
         }
     }

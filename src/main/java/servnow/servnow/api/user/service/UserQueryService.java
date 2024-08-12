@@ -28,18 +28,18 @@ public class UserQueryService {
     private final EmailService emailService;
 
     @Transactional(readOnly = true)
-    public MyPageResponse getMyPage() {
-        User user = userRepository.findById(3L)
+    public MyPageResponse getMyPage(final Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_FOUND));
-        UserInfo userinfo = userInfoRepository.findById(1L)
+        UserInfo userinfo = userInfoRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_FOUND));
         return MyPageResponse.of(userinfo, user);
     }
 
-    public EditProfilePageResponse getEditProfilePage() {
-        User user = userRepository.findById(2L)
+    public EditProfilePageResponse getEditProfilePage(final Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_FOUND));
-        UserInfo userInfo = userInfoRepository.findById(2L)
+        UserInfo userInfo = userInfoRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(UserInfoErrorCode.USER_NOT_FOUND));
 
         if (user.getPlatform() == Platform.KAKAO) {

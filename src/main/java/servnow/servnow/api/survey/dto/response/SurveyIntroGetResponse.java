@@ -5,7 +5,6 @@ import servnow.servnow.domain.survey.model.Survey;
 import servnow.servnow.domain.survey.model.enums.CharacterType;
 
 public record SurveyIntroGetResponse(
-    boolean isRegisteredUser,
     int duration,
     int questionCount,
     CharacterType characterType,
@@ -17,9 +16,8 @@ public record SurveyIntroGetResponse(
     LocalDateTime createdAt,
     LocalDateTime expiredAt
 ) {
-  public static SurveyIntroGetResponse of(final Survey survey, final boolean isRegistered, final int questionCount) {
+  public static SurveyIntroGetResponse of(final Survey survey, final int questionCount) {
     return new SurveyIntroGetResponse(
-        isRegistered,
         Math.round((float) survey.getDuration() / 60),
         questionCount,
         survey.getCharacterType(),

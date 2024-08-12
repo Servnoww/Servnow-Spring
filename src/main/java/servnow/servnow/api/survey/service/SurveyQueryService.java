@@ -21,9 +21,9 @@ public class SurveyQueryService {
   private final SectionFinder sectionFinder;
 
   @Transactional(readOnly = true)
-  public SurveyIntroGetResponse getSurveyIntro(final Long userId, final long id) {
+  public SurveyIntroGetResponse getSurveyIntro(final long id) {
     Survey survey = surveyFinder.findByIdWithSectionsAndQuestions(id);
-    return SurveyIntroGetResponse.of(survey, (userId != null), countQuestion(survey));
+    return SurveyIntroGetResponse.of(survey, countQuestion(survey));
   }
 
   @Transactional(readOnly = true)
@@ -47,7 +47,7 @@ public class SurveyQueryService {
   }
 
   @Transactional(readOnly = true)
-    public List<MySurveyResponse> getMySurveys(long userId, String sort) {
+    public List<MySurveyResponse> getMySurveys(final Long userId, String sort) {
       return surveyFinder.findAllSurveys(userId, sort);
     }
 }

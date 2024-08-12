@@ -11,12 +11,21 @@ import servnow.servnow.api.dto.ServnowResponse;
 import org.springframework.web.bind.annotation.*;
 import servnow.servnow.api.result.dto.response.MySurveysResultResponse;
 import servnow.servnow.api.result.service.ResultQueryService;
+import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
+import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
+import servnow.servnow.api.user.dto.request.SaveEditProfilePageRequest;
+import servnow.servnow.api.user.dto.request.SerialIdDuplicateRequest;
+import servnow.servnow.api.user.dto.response.EditProfilePageResponse;
 import servnow.servnow.api.user.dto.response.MyPageResponse;
 import servnow.servnow.api.user.dto.response.MySurveyResponse;
 import servnow.servnow.api.survey.service.SurveyQueryService;
+import servnow.servnow.api.user.service.EmailService;
 import servnow.servnow.api.user.service.UserCommandService;
 import servnow.servnow.api.user.service.UserQueryService;
+import servnow.servnow.auth.UserId;
 import servnow.servnow.common.code.CommonSuccessCode;
+import servnow.servnow.common.code.UserErrorCode;
+
 import java.util.List;
 
 
@@ -33,8 +42,49 @@ public class UserController {
 
     // 아직 유저 정보를 넘기는 방식이 정해지지 않아서 UserQueryService에서 userId값을 고정하여 테스트 함
     @GetMapping("/users/me")
-    public ServnowResponse<MyPageResponse> getMyPage() {
-        return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getMyPage());
+    public ServnowResponse<MyPageResponse> getMyPage(@UserId final Long userId) {
+        return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getMyPage(userId));
+    }
+
+    @GetMapping("/users/me/info")
+    public ServnowResponse<EditProfilePageResponse> getEditProfilePage(@UserId final Long userId) {
+        return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getEditProfilePage(userId));
+    }
+
+    @GetMapping("/users/me/id")
+    public ServnowResponse<Boolean> getSerialIdDuplicate(@RequestBody SerialIdDuplicateRequest request) {
+        return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getSerialIdDuplicate(request.serialId()));
+    }
+
+    @PostMapping("/users/me/info/identity-verification")
+    public ServnowResponse<Void> identityVerification(@RequestBody EmailDuplicateRequest request) throws Exception {
+        return userQueryService.identityVerification(request.email());
+    }
+
+    @PostMapping("/users/me/info/certification")
+    public ServnowResponse<Object> CertificationNumber(@RequestBody CertificationNumberRequest request) {
+        if (request.certificationNumber().equals(EmailService.ePw)) {
+            return ServnowResponse.success(CommonSuccessCode.OK);
+        } else {
+            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+        }
+    }
+
+    @PatchMapping("/users/me/info/save")
+    public ServnowResponse<SaveEditProfilePageRequest> profileSave(@UserId final Long userId, @RequestBody final SaveEditProfilePageRequest request) {
+        // 이메일이 변경되었고, 인증번호가 있는 경우
+        if (request.email() != null && !request.email().isEmpty() &&
+                request.certificationNumber() != null && request.certificationNumber().equals(EmailService.ePw)) {
+            userCommandService.profileSave(userId, request);
+            return ServnowResponse.success(CommonSuccessCode.OK);
+        } else if ((request.certificationNumber() == null) || request.certificationNumber().isEmpty()) {
+            // 인증번호 없이 아이디 또는 비밀번호만 변경하려는 경우
+            userCommandService.profileSave(userId, request);
+            return ServnowResponse.success(CommonSuccessCode.OK);
+        } else {
+            System.out.println("Controller out");
+            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+        }
     }
 
     @GetMapping("/users/me/survey/{id}")
@@ -44,8 +94,7 @@ public class UserController {
     }
 
     @GetMapping("/users/me/survey") // sort=newest, sort=oldest, sort=participants
-    public ServnowResponse<List<MySurveyResponse>> getMySurveys(@RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
-        long userId = 1L;
+    public ServnowResponse<List<MySurveyResponse>> getMySurveys(@UserId final Long userId, @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
         List<MySurveyResponse> surveys = surveyQueryService.getMySurveys(userId, sort);
         return ServnowResponse.success(CommonSuccessCode.OK, surveys);
 

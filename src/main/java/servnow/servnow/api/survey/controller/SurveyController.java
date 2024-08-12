@@ -11,6 +11,7 @@ import servnow.servnow.api.survey.dto.response.SurveyIntroGetResponse;
 import servnow.servnow.api.survey.dto.response.SurveySearchGetResponse;
 import servnow.servnow.api.survey.service.SurveyCommandService;
 import servnow.servnow.api.survey.service.SurveyQueryService;
+import servnow.servnow.auth.UserId;
 import servnow.servnow.common.code.CommonSuccessCode;
 
 import java.util.List;
@@ -25,9 +26,9 @@ public class SurveyController {
 
 
   @PostMapping("/survey")
-  public ServnowResponse<Void> createSurvey(@RequestBody @Valid SurveyPostRequest surveyPostRequest) {
+  public ServnowResponse<Void> createSurvey(@UserId Long userId, @RequestBody @Valid SurveyPostRequest surveyPostRequest) {
     // 유저 임시생성, 추후 아이디 로직 머지 후 고칠 예정
-    surveyCommandService.createSurvey(1L, surveyPostRequest);
+    surveyCommandService.createSurvey(userId, surveyPostRequest);
     return ServnowResponse.success(CommonSuccessCode.CREATED);
   }
 

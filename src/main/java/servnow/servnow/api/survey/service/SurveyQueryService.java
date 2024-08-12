@@ -47,7 +47,7 @@ public class SurveyQueryService {
   }
 
   @Transactional(readOnly = true)
-    public List<MySurveyResponse> getMySurveys(long userId, String sort) {
+    public List<MySurveyResponse> getMySurveys(final Long userId, String sort) {
       return surveyFinder.findAllSurveys(userId, sort);
     }
 }

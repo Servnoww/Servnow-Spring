@@ -25,7 +25,6 @@ import servnow.servnow.domain.user.model.UserInfo;
 import java.util.List;
 
 import servnow.servnow.common.code.QuestionErrorCode;
-
 import servnow.servnow.common.code.SurveyResultErrorCode;
 
 

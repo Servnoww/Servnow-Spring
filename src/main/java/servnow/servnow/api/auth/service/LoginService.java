@@ -3,6 +3,7 @@ package servnow.servnow.api.auth.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import servnow.servnow.api.dto.login.UserJoinRequest;
@@ -31,6 +32,8 @@ public class LoginService {
 	private final UserInfoRepository userInfoRepository;
 	private final JwtProvider jwtProvider;
 	private final UserInfoFinder userInfoFinder;
+    private final PasswordEncoder passwordEncoder;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	// 일반 로그인
@@ -60,7 +63,8 @@ public class LoginService {
 		}
 
 		// 비밀번호 일치 확인
-		if (!request.password().equals(request.repassword())) {
+		String encodedPassword = passwordEncoder.encode(request.password());
+		if (!request.password().equals(request.repassword()) && !passwordEncoder.matches(request.password(), encodedPassword) ) {
 			throw new BadRequestException(LoginErrorCode.PASSWORDS_DO_NOT_MATCH);
 		}
 

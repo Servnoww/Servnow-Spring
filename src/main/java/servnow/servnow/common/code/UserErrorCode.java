@@ -16,6 +16,7 @@ public enum UserErrorCode implements ErrorCode {
     EMAIL_DUPLICATE(HttpStatus.BAD_REQUEST, "해당 이메일은 이미 사용 중입니다."),
     SEND_CERTIFICATION_NUMBER(HttpStatus.BAD_REQUEST, "인증번호 전송을 실패하였습니다."),
     CERTIFICATION_NUMBER_MISMATCH(HttpStatus.UNAUTHORIZED, "인증번호가 일치하지 않습니다."),
+    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "인증이 진행되지 않았습니다."),
 
             ;
 

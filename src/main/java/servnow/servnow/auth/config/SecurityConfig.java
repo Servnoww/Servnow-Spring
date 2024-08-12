@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import servnow.servnow.auth.JwtAuthenticationEntryPoint;
@@ -24,7 +26,7 @@ public class SecurityConfig {
     private final JwtValidator jwtValidator;
     private final JwtProvider jwtProvider;
 
-   private static final String[] whiteList = { "/api/v1/auth/login", "/api/v1/auth/join", "/api/v1/auth/kakao", "/api/v1/find/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**", "/api/v1/survey/*/intro"};
+   private static final String[] whiteList = { "/api/v1/auth/login", "/api/v1/auth/join", "/api/v1/auth/kakao", "/api/v1/find/**", "/api/v1/change/pw", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**", "/api/v1/survey/*/intro"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -50,5 +52,10 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring().requestMatchers(whiteList);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

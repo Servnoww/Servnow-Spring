@@ -37,8 +37,18 @@ public class SurveyController {
     return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveyIntro(id));
   }
 
+  @GetMapping("/survey/guest/{id}/intro")
+  public ServnowResponse<SurveyIntroGetResponse> getSurveyIntroForGuest(@PathVariable(name = "id") long id) {
+    return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveyIntro(id));
+  }
+
   @GetMapping("/survey/{id}/sections/{sectionOrder}")
   public ServnowResponse<SurveyGetResponse> getSurveySection(@PathVariable(name = "id") long surveyId, @PathVariable(name = "sectionOrder") int sectionOrder) {
+    return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveySection(surveyId, sectionOrder));
+  }
+
+  @GetMapping("/survey/guest/{id}/sections/{sectionOrder}")
+  public ServnowResponse<SurveyGetResponse> getSurveySectionForGuest(@PathVariable(name = "id") long surveyId, @PathVariable(name = "sectionOrder") int sectionOrder) {
     return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveySection(surveyId, sectionOrder));
   }
 

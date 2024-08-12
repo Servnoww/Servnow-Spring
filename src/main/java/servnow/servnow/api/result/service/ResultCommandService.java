@@ -7,6 +7,7 @@ import servnow.servnow.api.result.dto.request.ResultPostRequest;
 import servnow.servnow.api.user.service.UserFinder;
 import servnow.servnow.api.user.service.UserInfoFinder;
 import servnow.servnow.api.user.service.UserInfoUpdater;
+import servnow.servnow.common.code.*;
 import servnow.servnow.common.exception.BadRequestException;
 import servnow.servnow.common.exception.NotFoundException;
 import servnow.servnow.domain.multiplechoiceresult.model.MultipleChoiceResult;
@@ -23,12 +24,10 @@ import servnow.servnow.domain.user.model.UserInfo;
 
 import java.util.List;
 
-import static servnow.servnow.common.code.MultipleChoiceErrorCode.MULTIPLE_CHOICE_NOT_FOUND;
-import static servnow.servnow.common.code.QuestionErrorCode.QUESTION_NOT_FOUND;
-import static servnow.servnow.common.code.SubjectiveResultErrorCode.SUBJECTIVE_RESULT_MULTIPLE_CHOICE_ID_PRESENT;
-import static servnow.servnow.common.code.SurveyErrorCode.SURVEY_NOT_FOUND;
-import static servnow.servnow.common.code.SurveyResultErrorCode.SURVEY_ALREADY_SUBMITTED;
-import static servnow.servnow.common.code.MultipleChoiceResultErrorCode.MULTIPLE_CHOICE_CONTENT_PRESENT;
+import servnow.servnow.common.code.QuestionErrorCode;
+
+import servnow.servnow.common.code.SurveyResultErrorCode;
+
 
 @Service
 @RequiredArgsConstructor
@@ -48,28 +47,46 @@ public class ResultCommandService {
     @Transactional
     public void createResult(final long userId, final ResultPostRequest resultPostRequest, final long surveyId) {
         Survey survey = surveyRepository.findById(surveyId)
-                .orElseThrow(() -> new NotFoundException(SURVEY_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(SurveyErrorCode.SURVEY_NOT_FOUND));
 
-        // 기존 제출 여부 확인
         if (surveyResultRepository.existsByUserIdAndSurveyId(userId, survey.getId())) {
-            throw new BadRequestException(SURVEY_ALREADY_SUBMITTED);
+            throw new BadRequestException(SurveyResultErrorCode.SURVEY_ALREADY_SUBMITTED);
         }
 
         SurveyResult surveyResult = resultUpdater.save(resultPostRequest.toEntity(userFinder.findById(userId), survey));
+        saveMultipleChoiceAndSubjective(resultPostRequest, surveyResult);
+        updateUserPoint(userId);
+    }
+
+    @Transactional
+    public void createResultForGuest(final ResultPostRequest resultPostRequest, final long surveyId) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new NotFoundException(SurveyErrorCode.SURVEY_NOT_FOUND));
+
+        SurveyResult surveyResult = resultUpdater.save(resultPostRequest.toEntity(null, survey));
+        saveMultipleChoiceAndSubjective(resultPostRequest, surveyResult);
+    }
 
 
+
+    private void updateUserPoint(final long userId) {
+        UserInfo userInfo = userInfoFinder.findByUserId(userId);
+        userInfoUpdater.updatePointById(100, userInfo.getId());
+    }
+
+    private void saveMultipleChoiceAndSubjective(final ResultPostRequest resultPostRequest, final SurveyResult surveyResult) {
         List<ResultPostRequest.Answer> answers = resultPostRequest.answers();
         answers.stream().forEach(answer -> {
             if (answer.multipleChoiceId() != null) {
                 // 객관식 결과 저장
                 if (answer.content() != null) {
-                    throw new BadRequestException(MULTIPLE_CHOICE_CONTENT_PRESENT);
+                    throw new BadRequestException(MultipleChoiceResultErrorCode.MULTIPLE_CHOICE_CONTENT_PRESENT);
                 }
 
                 MultipleChoice multipleChoice = multipleChoiceRepository.findById(answer.multipleChoiceId())
-                        .orElseThrow(() -> new NotFoundException(MULTIPLE_CHOICE_NOT_FOUND));
+                        .orElseThrow(() -> new NotFoundException(MultipleChoiceErrorCode.MULTIPLE_CHOICE_NOT_FOUND));
                 Question question = questionRepository.findById(answer.questionId())
-                        .orElseThrow(() -> new NotFoundException(QUESTION_NOT_FOUND));
+                        .orElseThrow(() -> new NotFoundException(QuestionErrorCode.QUESTION_NOT_FOUND));
 
                 MultipleChoiceResult multipleChoiceResult = answer.toMultipleChoiceEntity(
                         surveyResult,
@@ -80,11 +97,11 @@ public class ResultCommandService {
             } else {
                 // 주관식 결과 저장
                 if (answer.content() == null) {
-                    throw new BadRequestException(SUBJECTIVE_RESULT_MULTIPLE_CHOICE_ID_PRESENT);
+                    throw new BadRequestException(SubjectiveResultErrorCode.SUBJECTIVE_RESULT_MULTIPLE_CHOICE_ID_PRESENT);
                 }
 
                 Question question = questionRepository.findById(answer.questionId())
-                        .orElseThrow(() -> new NotFoundException(QUESTION_NOT_FOUND));
+                        .orElseThrow(() -> new NotFoundException(QuestionErrorCode.QUESTION_NOT_FOUND));
 
                 SubjectiveResult subjectiveResult = answer.toSubjectiveEntity(
                         surveyResult,
@@ -95,11 +112,5 @@ public class ResultCommandService {
             }
 
         });
-        updateUserPoint(userId);
-    }
-
-    private void updateUserPoint(final long userId) {
-        UserInfo userInfo = userInfoFinder.findByUserId(userId);
-        userInfoUpdater.updatePointById(100, userInfo.getId());
     }
 }

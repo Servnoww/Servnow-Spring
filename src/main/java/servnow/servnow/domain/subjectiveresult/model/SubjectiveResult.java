@@ -34,7 +34,7 @@ public class SubjectiveResult extends BaseTimeEntity {
   @JoinColumn(name = "answer_result_id", nullable = false)
   private SurveyResult surveyResult;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "question_id", nullable = false)
   private Question question;
 

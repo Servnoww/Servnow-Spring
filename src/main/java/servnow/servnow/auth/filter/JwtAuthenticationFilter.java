@@ -32,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = getAccessToken(request);
         jwtValidator.validateAccessToken(accessToken);
+
         doAuthentication(request, jwtProvider.getSubject(accessToken));
         filterChain.doFilter(request, response);
     }
@@ -39,7 +40,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 헤더에서 액세스 토큰 추출
     private String getAccessToken(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");
-        System.out.println("header: "+accessToken);
 
         if (StringUtils.hasText(accessToken) && accessToken.startsWith(BEARER)) {
             return accessToken.substring(7);

@@ -24,8 +24,7 @@ public class SecurityConfig {
     private final JwtValidator jwtValidator;
     private final JwtProvider jwtProvider;
 
-    private static final String[] whiteList = { "/api/v1/auth/login", "/api/v1/auth/join", "/api/v1/auth/kakao", "/api/v1/find/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**", "/api/v1/survey/guest/**", "api/v1/result/guest/**"};
-
+    private static final String[] whiteList = { "/api/v1/auth/login", "/api/v1/auth/join", "/api/v1/auth/kakao", "/api/v1/find/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**", "/api/v1/survey/guest/**", "/api/v1/survey/home", "/api/v1/survey", "api/v1/result/guest/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

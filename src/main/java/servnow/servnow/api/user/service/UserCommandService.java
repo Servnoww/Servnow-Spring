@@ -19,10 +19,10 @@ public class UserCommandService {
     private final UserInfoRepository userInfoRepository;
     private final UserRepository userRepository;
     private final UserInfoFinder userInfoFinder;
-    public void profileSave(SaveEditProfilePageRequest request) {
-        User user = userRepository.findById(2L)
+    public void profileSave(final Long userId, SaveEditProfilePageRequest request) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_FOUND));
-        UserInfo userInfo = userInfoRepository.findById(2L)
+        UserInfo userInfo = userInfoRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(UserInfoErrorCode.USER_NOT_FOUND));
 
         String password = request.password() != null ? request.password().trim() : "";

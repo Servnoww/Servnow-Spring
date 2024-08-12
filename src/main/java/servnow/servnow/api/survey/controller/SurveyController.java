@@ -1,5 +1,6 @@
 package servnow.servnow.api.survey.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +27,7 @@ public class SurveyController {
 
 
   @PostMapping("/survey")
-  public ServnowResponse<Void> createSurvey(@UserId Long userId, @RequestBody @Valid SurveyPostRequest surveyPostRequest) {
-    // 유저 임시생성, 추후 아이디 로직 머지 후 고칠 예정
+  public ServnowResponse<Void> createSurvey(@Parameter(hidden = true) @UserId Long userId, @RequestBody @Valid SurveyPostRequest surveyPostRequest) {
     surveyCommandService.createSurvey(userId, surveyPostRequest);
     return ServnowResponse.success(CommonSuccessCode.CREATED);
   }

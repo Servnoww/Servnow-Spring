@@ -12,7 +12,7 @@ import java.util.List;
 @Configuration
 public class WebClientConfig implements WebMvcConfigurer {
 
-    private UserIdArgumentResolver userIdArgumentResolver;
+    private final UserIdArgumentResolver userIdArgumentResolver;
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {

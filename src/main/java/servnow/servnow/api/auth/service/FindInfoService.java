@@ -46,21 +46,24 @@ public class FindInfoService {
     }
 
 
-    public String updatePassword(String serialId, String password) throws Exception {
+    public ServnowResponse<Object> updatePassword(String serialId, String password, String repassword) throws Exception {
         User user = userRepository.findBySerialId(serialId)
                 .orElseThrow(() -> new Exception(LoginErrorCode.USER_NOT_FOUND.getMessage()));
 
-         if (isValidPassword(password)) {
-            String encodedPassword = passwordEncoder.encode(password);
+        if (password.equals(repassword)) {
+            if (isValidPassword(password)) {
+                String encodedPassword = passwordEncoder.encode(password);
 
-            user.setPassword(encodedPassword);
-            userRepository.save(user);
+                user.setPassword(encodedPassword);
+                userRepository.save(user);
 
-            return CommonSuccessCode.OK.getMessage();
-         } else {
-                return LoginErrorCode.INVALID_PASSWORD_FORMAT.getMessage();
-         }
-
+                return ServnowResponse.success(CommonSuccessCode.OK);
+             } else {
+                return ServnowResponse.fail(LoginErrorCode.INVALID_PASSWORD_FORMAT);
+            }
+        } else {
+            return ServnowResponse.fail(LoginErrorCode.PASSWORDS_DO_NOT_MATCH);
+        }
     }
 
     // 비밀번호 유효성 검증

@@ -1,6 +1,7 @@
 package servnow.servnow.api.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import servnow.servnow.api.user.dto.request.SaveEditProfilePageRequest;
 import servnow.servnow.common.code.UserErrorCode;
@@ -58,5 +59,4 @@ public class UserCommandService {
             userInfoRepository.save(userInfo);
         }
     }
-
 }

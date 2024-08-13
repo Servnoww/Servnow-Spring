@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import servnow.servnow.auth.JwtAuthenticationEntryPoint;
@@ -24,8 +26,7 @@ public class SecurityConfig {
     private final JwtValidator jwtValidator;
     private final JwtProvider jwtProvider;
 
-    private static final String[] whiteList = { "/api/v1/auth/login", "/api/v1/auth/join", "/api/v1/auth/kakao", "/api/v1/find/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**", "/api/v1/survey/guest/**", "/api/v1/survey/home", "/api/v1/survey", "api/v1/result/guest/**",
-                                              "/api/v1/users/me/id", "api/v1/users/me/info/identity-verification", "/api/v1/users/me/info/certification"};
+    private static final String[] whiteList = { "/api/v1/auth/login", "/api/v1/auth/join", "/api/v1/auth/kakao", "/api/v1/find/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**", "/api/v1/survey/guest/**", "/api/v1/survey/home", "/api/v1/survey", "api/v1/result/guest/**",  "/api/v1/change/pw"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,5 +52,10 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring().requestMatchers(whiteList);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

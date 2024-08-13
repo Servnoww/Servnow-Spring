@@ -153,6 +153,7 @@ public class LoginService {
 		}
 	}
 
+	@Transactional
 	public void logout(final long userId) {
 		UserInfo findUserInfo = userInfoFinder.findByUserId(userId);
 		findUserInfo.updateRefreshToken(null);

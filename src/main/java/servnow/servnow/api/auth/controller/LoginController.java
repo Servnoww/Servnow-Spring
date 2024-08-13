@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
+import servnow.servnow.api.auth.dto.response.ReissueTokenResponse;
 import servnow.servnow.api.auth.service.KakaoService;
 import servnow.servnow.api.auth.service.LoginService;
 import servnow.servnow.api.dto.ServnowResponse;
@@ -55,4 +56,9 @@ public class LoginController {
 		loginService.join(request);
 		return ServnowResponse.success(CommonSuccessCode.OK, "회원가입이 완료되었습니다.");
 	}
+
+  @PostMapping("/auth/reissue")
+  public ServnowResponse<ReissueTokenResponse> reissue(@RequestHeader("Authorization") String refreshToken) {
+    return ServnowResponse.success(CommonSuccessCode.OK, loginService.reissue(refreshToken));
+  }
 }

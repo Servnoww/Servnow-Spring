@@ -31,6 +31,7 @@ public class FindInfoService {
      */
      public String checkEmail(String email) throws Exception {
         Optional<UserInfo> userInfo = userInfoRepository.findByEmail(email);
+
         if (userInfo.isPresent()) {
             String confirm = emailService.sendSimpleMessage(email);
             String serialId = userInfo.get().getUser().getSerialId();

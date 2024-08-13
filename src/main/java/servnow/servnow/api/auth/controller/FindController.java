@@ -11,8 +11,14 @@ import servnow.servnow.api.user.service.EmailService;
 import servnow.servnow.api.user.service.UserCommandService;
 import servnow.servnow.api.user.service.UserQueryService;
 import servnow.servnow.common.code.CommonSuccessCode;
+import servnow.servnow.common.code.LoginErrorCode;
 import servnow.servnow.common.code.UserErrorCode;
+import servnow.servnow.domain.user.model.User;
+import servnow.servnow.domain.user.model.enums.Platform;
 import servnow.servnow.domain.user.repository.UserInfoRepository;
+import servnow.servnow.domain.user.repository.UserRepository;
+
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +28,7 @@ public class FindController {
 
     private final UserCommandService userCommandService;
     private final UserQueryService userQueryService;
-    private final UserInfoRepository userInfoRepository;
+    private final UserRepository userRepository;
 
     String serialId = null;
     Boolean check = false;
@@ -33,7 +39,24 @@ public class FindController {
     @PostMapping("/find/email-verify")
     public ServnowResponse<String> verifyEmail(@RequestBody EmailDuplicateRequest request) throws Exception {
         serialId = findInfoService.checkEmail(request.email());
-        return ServnowResponse.success(CommonSuccessCode.OK);
+
+        if (serialId == null) {
+            return ServnowResponse.fail(LoginErrorCode.USER_NOT_FOUND);
+        }
+
+        Optional<User> userOptional = userRepository.findBySerialId(serialId);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            if (user.getPlatform().equals(Platform.KAKAO)) {
+                return ServnowResponse.fail(LoginErrorCode.INVALID_PW_KAKAO_USER);
+            }
+
+            return ServnowResponse.success(CommonSuccessCode.OK);
+        } else {
+            return ServnowResponse.fail(LoginErrorCode.USER_NOT_FOUND);
+        }
     }
 
     @PostMapping("/find/id")

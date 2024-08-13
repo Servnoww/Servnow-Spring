@@ -44,12 +44,12 @@ public class UserController {
 
     // 아직 유저 정보를 넘기는 방식이 정해지지 않아서 UserQueryService에서 userId값을 고정하여 테스트 함
     @GetMapping("/users/me")
-    public ServnowResponse<MyPageResponse> getMyPage(@UserId final Long userId) {
+    public ServnowResponse<MyPageResponse> getMyPage(@Parameter (hidden = true) @UserId final Long userId) {
         return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getMyPage(userId));
     }
 
     @GetMapping("/users/me/info")
-    public ServnowResponse<EditProfilePageResponse> getEditProfilePage(@UserId final Long userId) {
+    public ServnowResponse<EditProfilePageResponse> getEditProfilePage(@Parameter (hidden = true) @UserId final Long userId) {
         return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getEditProfilePage(userId));
     }
 
@@ -73,7 +73,7 @@ public class UserController {
     }
 
     @PatchMapping("/users/me/info/save")
-    public ServnowResponse<SaveEditProfilePageRequest> profileSave(@UserId final Long userId, @RequestBody final SaveEditProfilePageRequest request) {
+    public ServnowResponse<SaveEditProfilePageRequest> profileSave(@Parameter (hidden = true) @UserId final Long userId, @RequestBody final SaveEditProfilePageRequest request) {
         // 이메일이 변경되었고, 인증번호가 있는 경우
         if (request.email() != null && !request.email().isEmpty() &&
                 request.certificationNumber() != null && request.certificationNumber().equals(EmailService.ePw)) {
@@ -90,13 +90,13 @@ public class UserController {
     }
 
     @GetMapping("/users/me/survey/{id}")
-    public ServnowResponse<MySurveysResultResponse> getMySurveysResult(@PathVariable(name = "id") long surveyId) {
+    public ServnowResponse<MySurveysResultResponse> getMySurveysResult(@Parameter (hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId) {
         MySurveysResultResponse result = resultQueryService.getMySurveysResult(surveyId);
         return ServnowResponse.success(CommonSuccessCode.OK, result);
     }
 
     @GetMapping("/users/me/survey") // sort=newest, sort=oldest, sort=participants
-    public ServnowResponse<List<MySurveyResponse>> getMySurveys(@UserId final Long userId, @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
+    public ServnowResponse<List<MySurveyResponse>> getMySurveys(@Parameter (hidden = true) @UserId final Long userId, @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
         List<MySurveyResponse> surveys = surveyQueryService.getMySurveys(userId, sort);
         return ServnowResponse.success(CommonSuccessCode.OK, surveys);
 

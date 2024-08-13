@@ -43,4 +43,12 @@ public class SurveyResult extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "surveyResult")
     private List<SubjectiveResult> subjectiveResults = new ArrayList<>();
+
+    public static SurveyResult create(User user, Survey survey, String email) {
+        return SurveyResult.builder()
+                .user(user)
+                .survey(survey)
+                .email(email)
+                .build();
+    }
 }

@@ -1,5 +1,6 @@
 package servnow.servnow.api.user.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import servnow.servnow.api.user.dto.response.EditProfilePageResponse;
 import servnow.servnow.api.user.dto.response.MyPageResponse;
 import servnow.servnow.api.user.dto.response.MySurveyResponse;
 import servnow.servnow.api.survey.service.SurveyQueryService;
+import servnow.servnow.api.user.dto.response.UserPointGetResponse;
 import servnow.servnow.api.user.service.EmailService;
 import servnow.servnow.api.user.service.UserCommandService;
 import servnow.servnow.api.user.service.UserQueryService;
@@ -98,5 +100,10 @@ public class UserController {
         List<MySurveyResponse> surveys = surveyQueryService.getMySurveys(userId, sort);
         return ServnowResponse.success(CommonSuccessCode.OK, surveys);
 
+    }
+
+    @GetMapping("/users/me/point")
+    public ServnowResponse<UserPointGetResponse> getUserPoint(@Parameter(hidden = true) @UserId final Long userId) {
+        return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getUserPoint(userId));
     }
 }

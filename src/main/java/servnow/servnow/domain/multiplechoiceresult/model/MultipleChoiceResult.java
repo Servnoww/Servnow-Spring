@@ -34,4 +34,12 @@ public class MultipleChoiceResult extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
+
+    public static MultipleChoiceResult create(Question question, SurveyResult surveyResult, MultipleChoice multipleChoice) {
+        return MultipleChoiceResult.builder()
+                .question(question)
+                .surveyResult(surveyResult)
+                .multipleChoice(multipleChoice)
+                .build();
+    }
 }

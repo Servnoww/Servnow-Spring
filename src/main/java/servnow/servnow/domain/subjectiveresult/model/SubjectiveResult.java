@@ -39,4 +39,12 @@ public class SubjectiveResult extends BaseTimeEntity {
   private Question question;
 
   private String content;
+
+  public static SubjectiveResult create(Question question, SurveyResult surveyResult, String content) {
+    return SubjectiveResult.builder()
+            .question(question)
+            .surveyResult(surveyResult)
+            .content(content)
+            .build();
+  }
 }

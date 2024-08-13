@@ -7,6 +7,7 @@ import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.user.dto.response.EditProfilePageResponse;
 import servnow.servnow.api.user.dto.response.KakaoEditProfilePageResponse;
 import servnow.servnow.api.user.dto.response.MyPageResponse;
+import servnow.servnow.api.user.dto.response.UserPointGetResponse;
 import servnow.servnow.common.code.CommonSuccessCode;
 import servnow.servnow.common.code.UserErrorCode;
 import servnow.servnow.common.code.UserInfoErrorCode;
@@ -70,5 +71,10 @@ public class UserQueryService {
         } else {
             return ServnowResponse.success(CommonSuccessCode.OK);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public UserPointGetResponse getUserPoint(final long userId){
+        return UserPointGetResponse.of(userInfoFinder.findByUserId(userId));
     }
 }

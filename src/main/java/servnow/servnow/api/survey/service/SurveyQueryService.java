@@ -37,6 +37,7 @@ public class SurveyQueryService {
         .sum();
   }
 
+  @Transactional(readOnly = true)
   public List<SurveySearchGetResponse> searchSurvey(final Long userId, final String keyword, final boolean filter) {
     return surveyFinder.findByKeyword(userId, keyword, filter);
   }

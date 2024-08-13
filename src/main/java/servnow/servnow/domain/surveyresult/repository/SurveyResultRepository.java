@@ -13,6 +13,8 @@ import java.util.List;
 
 public interface SurveyResultRepository extends JpaRepository<SurveyResult, Long> {
 
+    boolean existsByUserIdAndSurveyId(Long userId, Long surveyId);
+
     @Query("SELECT s FROM Survey s LEFT JOIN FETCH s.sections WHERE s.id = :surveyId")
     Survey findSurveyWithSectionsById(@Param("surveyId") Long surveyId);
 

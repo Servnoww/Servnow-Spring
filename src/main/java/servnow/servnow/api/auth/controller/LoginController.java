@@ -1,6 +1,7 @@
 package servnow.servnow.api.auth.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.dto.login.UserJoinRequest;
 import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
+import servnow.servnow.auth.UserId;
 import servnow.servnow.auth.jwt.Token;
 import servnow.servnow.common.code.CommonSuccessCode;
 
@@ -34,13 +36,10 @@ public class LoginController {
         return ServnowResponse.success(CommonSuccessCode.OK, response);
     }
 
-    // 카카오 로그아웃
-    @PostMapping("/auth/kakao/logout")
-    public ServnowResponse kakaoLogout(@RequestHeader("Authorization") String accessToken) throws JsonProcessingException {
-        String token = accessToken.replace("Bearer ", "");
-        kakaoService.kakaoDisconnect(token);
-
-        return ServnowResponse.success(CommonSuccessCode.OK);
+    @PatchMapping("/auth/logout")
+    public ServnowResponse<Void> logout(@Parameter(hidden = true) @UserId Long userId) {
+      loginService.logout(userId);
+      return ServnowResponse.success(CommonSuccessCode.OK);
     }
 
     // 일반 로그인

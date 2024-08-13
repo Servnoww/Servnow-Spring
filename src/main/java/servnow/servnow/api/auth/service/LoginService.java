@@ -37,6 +37,7 @@ public class LoginService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	// 일반 로그인
+	@Transactional
 	public UserLoginResponse login(UserLoginRequest request) {
 		Optional<User> optionalUser = userRepository.findBySerialId(request.serialId());
 		if (optionalUser.isEmpty()) {
@@ -48,8 +49,7 @@ public class LoginService {
 		// 토큰 생성
 		Token issuedToken = jwtProvider.issueTokens(user.getId(), user.getUserRole().getValue());
 		UserInfo userInfo = userInfoFinder.findByUserId(user.getId());
-		userInfo.setRefreshToken(issuedToken.refreshToken());
-
+		userInfo.updateRefreshToken(issuedToken.refreshToken());
 		return UserLoginResponse.of(issuedToken, true);
 	}
 

@@ -6,14 +6,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import servnow.servnow.api.auth.dto.response.ReissueTokenResponse;
 import servnow.servnow.api.dto.login.UserJoinRequest;
 import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
+import servnow.servnow.api.user.service.UserFinder;
 import servnow.servnow.api.user.service.UserInfoFinder;
 import servnow.servnow.auth.jwt.JwtProvider;
+import servnow.servnow.auth.jwt.JwtValidator;
 import servnow.servnow.auth.jwt.Token;
 import servnow.servnow.common.code.LoginErrorCode;
 import servnow.servnow.common.exception.BadRequestException;
+import servnow.servnow.common.exception.UnauthorizedException;
 import servnow.servnow.domain.user.model.User;
 import servnow.servnow.domain.user.model.UserInfo;
 import servnow.servnow.domain.user.model.enums.Platform;
@@ -23,16 +27,22 @@ import servnow.servnow.domain.user.repository.UserRepository;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static servnow.servnow.auth.filter.JwtAuthenticationFilter.BEARER;
 import static servnow.servnow.domain.user.model.User.createUser;
+
 
 @Service
 @RequiredArgsConstructor
 public class LoginService {
+
 	private final UserRepository userRepository;
 	private final UserInfoRepository userInfoRepository;
 	private final JwtProvider jwtProvider;
 	private final UserInfoFinder userInfoFinder;
-    private final PasswordEncoder passwordEncoder;
+	private final UserFinder userFinder;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtValidator jwtValidator;
+
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -116,4 +126,35 @@ public class LoginService {
 			   request.email() != null && !request.email().isEmpty();
 	}
 
+	@Transactional(noRollbackFor = UnauthorizedException.class)
+	public ReissueTokenResponse reissue(final String refreshToken) {
+
+		long userId = jwtProvider.getSubject(refreshToken.substring(BEARER.length()));
+		UserInfo userInfo = userInfoFinder.findByUserId(userId);
+
+		validateRefreshToken(refreshToken, userInfo);
+
+		Token reissuedToken = jwtProvider.issueTokens(userId, getUserRole(userId));
+		userInfo.updateRefreshToken(reissuedToken.refreshToken());
+		return ReissueTokenResponse.of(reissuedToken);
+	}
+
+	private String getUserRole(final long userId) {
+		return userFinder.findById(userId).getUserRole().getValue();
+	}
+
+	private void validateRefreshToken(final String refreshToken, final UserInfo userInfo) {
+		try {
+			jwtValidator.validateRefreshToken(refreshToken);
+			jwtValidator.equalsRefreshToken(refreshToken, userInfo.getRefreshToken());
+		} catch (UnauthorizedException e) {
+			logout(userInfo.getUser().getId());
+			throw e;
+		}
+	}
+
+	public void logout(final long userId) {
+		UserInfo findUserInfo = userInfoFinder.findByUserId(userId);
+		findUserInfo.updateRefreshToken(null);
+	}
 }

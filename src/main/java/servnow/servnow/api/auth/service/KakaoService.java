@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import servnow.servnow.api.dto.login.UserLoginResponse;
@@ -42,6 +43,7 @@ public class KakaoService {
     /**
      * 카카오 로그인 처리
      */
+    @Transactional
     public UserLoginResponse login(String accessToken, String pf) throws IOException {
         HashMap<String, Object> userInfo = getUserInfo(accessToken);
 
@@ -69,7 +71,7 @@ public class KakaoService {
     private Token generateTokens(Long id) {
         Token issuedTokens = jwtProvider.issueTokens(id, getUserRole(id));
         UserInfo userInfo = userInfoFinder.findByUserId(id);
-        userInfo.setRefreshToken(issuedTokens.refreshToken());
+        userInfo.updateRefreshToken(issuedTokens.refreshToken());
         return issuedTokens;
     }
 

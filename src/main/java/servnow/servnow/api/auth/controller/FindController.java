@@ -36,8 +36,8 @@ public class FindController {
     /**
      * db에 있는 email에 인증번호 전송
      */
-    @PostMapping("/find/email-verify")
-    public ServnowResponse<String> verifyEmail(@RequestBody EmailDuplicateRequest request) throws Exception {
+    @PostMapping("/find/email/identity-verification")
+    public ServnowResponse<String> sendEmailNumber(@RequestBody EmailDuplicateRequest request) throws Exception {
         serialId = findInfoService.checkEmail(request.email());
 
         if (serialId == null) {
@@ -59,25 +59,36 @@ public class FindController {
         }
     }
 
-    @PostMapping("/find/id")
-    public ServnowResponse<String> findId(@RequestBody CertificationNumberRequest request) {
-        if (request.certificationNumber().equals(EmailService.ePw)) {
-            return ServnowResponse.success(CommonSuccessCode.OK, serialId);
-        } else {
-            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
-        }
-    }
-
-    @PostMapping("/find/pw")
-    public ServnowResponse<Boolean> findPw(@RequestBody CertificationNumberRequest request) {
+    @PostMapping("/find/email/certification")
+    public ServnowResponse<Object> CertificationNumber(@RequestBody CertificationNumberRequest request) {
         if (request.certificationNumber().equals(EmailService.ePw)) {
             check = true;
-            return ServnowResponse.success(CommonSuccessCode.OK);
+            return ServnowResponse.success(CommonSuccessCode.OK, serialId);
         } else {
             check = false;
             return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
         }
     }
+
+//    @PostMapping("/find/id")
+//    public ServnowResponse<String> findId(@RequestBody CertificationNumberRequest request) {
+//        if (request.certificationNumber().equals(EmailService.ePw)) {
+//            return ServnowResponse.success(CommonSuccessCode.OK, serialId);
+//        } else {
+//            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+//        }
+//    }
+
+//    @PostMapping("/find/pw")
+//    public ServnowResponse<Boolean> findPw(@RequestBody CertificationNumberRequest request) {
+//        if (request.certificationNumber().equals(EmailService.ePw)) {
+//            check = true;
+//            return ServnowResponse.success(CommonSuccessCode.OK);
+//        } else {
+//            check = false;
+//            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+//        }
+//    }
 
     @PostMapping("/change/pw")
     public ServnowResponse<Object> changePw(@RequestBody UserChangePwRequest request) throws Exception {

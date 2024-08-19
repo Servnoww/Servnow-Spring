@@ -62,7 +62,6 @@ public class LoginController {
         		loginService.join(request);
 	        	return ServnowResponse.success(CommonSuccessCode.OK, "회원가입이 완료되었습니다.");
         } else {
-            System.out.println("Controller out");
             return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
         }
 	}

@@ -71,7 +71,6 @@ public class ResultCommandService {
     }
 
 
-
     private void updateUserPoint(final long userId) {
         UserInfo userInfo = userInfoFinder.findByUserId(userId);
         userInfoUpdater.updatePointById(100, userInfo.getId());
@@ -124,12 +123,21 @@ public class ResultCommandService {
             Question question = questionRepository.findById(questionMemo.questionId())
                     .orElseThrow(() -> new NotFoundException(QuestionErrorCode.QUESTION_NOT_FOUND));
 
-            for (String memoContent : questionMemo.memos()) {
-                SurveyResultMemo newMemo = SurveyResultMemo.create(question, memoContent);
-                surveyResultMemoRepository.save(newMemo);
-            }
-        }
+            Long memoCount = surveyResultMemoRepository.countByQuestionId(question.getId());
+            System.out.println("MEMOCOUNT : "+ memoCount );
+            System.out.println("문제 번호 : " + questionMemo.questionOrder());
 
+            // 메모의 개수를 확인하고 4개 이상일 경우 예외를 발생시킵니다.
+            if (memoCount + questionMemo.memos().size() > 4) {
+                throw new BadRequestException(SurveyResultErrorCode.ERROR_MEMO_LIMIT_EXCEEDED);
+            } else {
+                for (String memoContent : questionMemo.memos()) {
+                    SurveyResultMemo newMemo = SurveyResultMemo.create(question, memoContent);
+                    surveyResultMemoRepository.save(newMemo);
+                }
+            }
+
+        }
 
 
     }

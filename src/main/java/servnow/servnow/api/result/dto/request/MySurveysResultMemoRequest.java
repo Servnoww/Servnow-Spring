@@ -8,7 +8,6 @@ public record MySurveysResultMemoRequest(
 ) {
     public record QuestionMemo(
             Long questionId,
-            String title,
             int questionOrder,
             List<String> memos
     ) {}

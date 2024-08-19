@@ -5,4 +5,5 @@ import servnow.servnow.domain.surveyresultmemo.model.SurveyResultMemo;
 
 public interface SurveyResultMemoRepository extends JpaRepository<SurveyResultMemo, Long> {
 
+    Long countByQuestionId(Long questionId);
 }

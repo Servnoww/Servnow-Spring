@@ -54,7 +54,10 @@ public class KakaoService {
         String nickname = (String) userInfo.getOrDefault("nickname", "unknown");
         String gender = (String) userInfo.getOrDefault("gender", "unknown");
         String profileUrl = (String) userInfo.getOrDefault("profile_url", "default_url");
-        LocalDate birthDate = (LocalDate) userInfo.getOrDefault("birthDate", LocalDate.now());
+//        LocalDate birthDate = (LocalDate) userInfo.getOrDefault("birthDate", LocalDate.now());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String birthDate = ((LocalDate) userInfo.getOrDefault("birthDate", LocalDate.now())).format(formatter);
 
         Platform platform = Platform.getEnumPlatformFromStringPlatform(pf);
         boolean isRegistered = userFinder.isRegisteredUser(platform, serialId);
@@ -119,7 +122,7 @@ public class KakaoService {
     }
 
 
-    private void saveUserInfo(User user, String nickname, Gender gender, String email, LocalDate birthDate, String profileUrl) {
+    private void saveUserInfo(User user, String nickname, Gender gender, String email, String birthDate, String profileUrl) {
         UserInfo newUserInfo = UserInfo.createMemberInfo(user, nickname, gender, email, birthDate, null, profileUrl);
         userInfoRepository.save(newUserInfo);
     }

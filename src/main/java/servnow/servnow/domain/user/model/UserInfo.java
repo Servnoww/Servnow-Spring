@@ -38,7 +38,7 @@ public class UserInfo extends BaseTimeEntity {
     private Gender gender;
 
     @Column(nullable = false)
-    private LocalDate birth;
+    private String birth;
 
     @Lob
     private String profile_url;
@@ -57,7 +57,7 @@ public class UserInfo extends BaseTimeEntity {
             final String nickname,
             final Gender gender,
             final String email,
-            final LocalDate birthDate,
+            final String birthDate,
             final String refreshToken,
             final String profile_url
             ) {

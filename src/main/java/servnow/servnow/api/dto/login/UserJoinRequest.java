@@ -20,5 +20,5 @@ public record UserJoinRequest(
         @Nullable
         String gender,
         @Nullable
-        LocalDate birth
+        String birth
 ){}

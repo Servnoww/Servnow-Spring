@@ -110,9 +110,6 @@ public class UserController {
         return ServnowResponse.success(CommonSuccessCode.OK, result);
     }
 
-
-
-
     @GetMapping("/users/me/survey") // sort=newest, sort=oldest, sort=participants
     public ServnowResponse<List<MySurveyResponse>> getMySurveys(@Parameter (hidden = true) @UserId final Long userId, @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
         List<MySurveyResponse> surveys = surveyQueryService.getMySurveys(userId, sort);

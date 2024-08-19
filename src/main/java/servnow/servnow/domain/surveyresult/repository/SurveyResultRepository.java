@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import servnow.servnow.domain.survey.model.Survey;
-import servnow.servnow.domain.section.model.Section;
 import servnow.servnow.domain.question.model.Question;
 import servnow.servnow.domain.surveyresult.model.SurveyResult;
 import servnow.servnow.domain.subjectiveresult.model.SubjectiveResult;

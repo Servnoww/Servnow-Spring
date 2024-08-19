@@ -16,8 +16,10 @@ import servnow.servnow.api.user.service.UserFinder;
 import servnow.servnow.api.user.service.UserInfoFinder;
 import servnow.servnow.auth.jwt.JwtProvider;
 import servnow.servnow.auth.jwt.Token;
+import servnow.servnow.common.code.AuthErrorCode;
 import servnow.servnow.domain.user.model.User;
 import servnow.servnow.domain.user.model.UserInfo;
+import servnow.servnow.domain.user.model.enums.Gender;
 import servnow.servnow.domain.user.model.enums.Platform;
 import servnow.servnow.domain.user.repository.UserInfoRepository;
 import servnow.servnow.domain.user.repository.UserRepository;
@@ -44,7 +46,7 @@ public class KakaoService {
      * 카카오 로그인 처리
      */
     @Transactional
-    public UserLoginResponse login(String accessToken, String pf) throws IOException {
+    public UserLoginResponse login(String accessToken, String pf) throws Exception {
         HashMap<String, Object> userInfo = getUserInfo(accessToken);
 
         String serialId = (String) userInfo.getOrDefault("id", "unknown");
@@ -57,14 +59,14 @@ public class KakaoService {
         Platform platform = Platform.getEnumPlatformFromStringPlatform(pf);
         boolean isRegistered = userFinder.isRegisteredUser(platform, serialId);
 
+        Gender genderEnum = Gender.getEnumGenderFromStringGender(gender);
 
          User user = loadOrCreateUser(platform, serialId, isRegistered);
         if (!isRegistered) {
-            saveUserInfo(user, nickname, gender, email, birthDate, profileUrl);
+            saveUserInfo(user, nickname, genderEnum, email, birthDate, profileUrl);
         }
 
         Token issuedToken = generateTokens(user.getId());
-
         return UserLoginResponse.of(issuedToken, isRegistered);
     }
 
@@ -76,14 +78,35 @@ public class KakaoService {
     }
 
 
-    private User loadOrCreateUser(Platform platform, String serialId, boolean isRegistered) {
+//    private User loadOrCreateUser(Platform platform, String serialId, boolean isRegistered) {
+//        System.out.println(userFinder.findUserByPlatFormAndSeralId(platform, serialId));
+//        return userFinder.findUserByPlatFormAndSeralId(platform, serialId)
+//                .map(user -> updateOrFindUserInfo(user, isRegistered))
+//                .orElseGet(() -> {
+//                    User newUser = createUser(serialId, platform);
+//                    System.out.println("hi000");
+//                    return saveUser(newUser);
+//                });
+//    }
+    private User loadOrCreateUser(Platform platform, String serialId, boolean isRegistered) throws Exception {
+    try {
+        // 사용자 찾기 시도
+        System.out.println(userFinder.findUserByPlatFormAndSeralId(platform, serialId));
         return userFinder.findUserByPlatFormAndSeralId(platform, serialId)
                 .map(user -> updateOrFindUserInfo(user, isRegistered))
                 .orElseGet(() -> {
                     User newUser = createUser(serialId, platform);
+                    System.out.println("hi000");
                     return saveUser(newUser);
                 });
+    } catch (IllegalArgumentException e) {
+        // 잘못된 플랫폼 타입 예외 처리
+        throw new Exception(String.valueOf(AuthErrorCode.INVALID_PLATFORM_TYPE));
+    } catch (Exception e) {
+        // 예상하지 못한 예외 처리
+        throw new Exception(String.valueOf(AuthErrorCode.INTERNAL_SERVER_ERROR));
     }
+}
 
     private User updateOrFindUserInfo(User user, boolean isRegistered) {
         return isRegistered ? user : saveUser(user);
@@ -96,7 +119,7 @@ public class KakaoService {
     }
 
 
-    private void saveUserInfo(User user, String nickname, String gender, String email, LocalDate birthDate, String profileUrl) {
+    private void saveUserInfo(User user, String nickname, Gender gender, String email, LocalDate birthDate, String profileUrl) {
         UserInfo newUserInfo = UserInfo.createMemberInfo(user, nickname, gender, email, birthDate, null, profileUrl);
         userInfoRepository.save(newUserInfo);
     }

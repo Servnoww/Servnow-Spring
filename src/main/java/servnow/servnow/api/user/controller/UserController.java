@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import servnow.servnow.api.dto.ServnowResponse;
 import org.springframework.web.bind.annotation.*;
+import servnow.servnow.api.result.dto.request.MySurveysResultMemoRequest;
 import servnow.servnow.api.result.dto.response.MySurveysResultResponse;
+import servnow.servnow.api.result.service.ResultCommandService;
 import servnow.servnow.api.result.service.ResultQueryService;
 import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
 import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
@@ -38,6 +40,7 @@ public class UserController {
     private final UserCommandService userCommandService;
     private final UserQueryService userQueryService;
     private final ResultQueryService resultQueryService;
+    private final ResultCommandService resultCommandService;
     private final SurveyQueryService surveyQueryService;
 
 
@@ -95,11 +98,17 @@ public class UserController {
         return ServnowResponse.success(CommonSuccessCode.OK, result);
     }
 
+    @PostMapping("/users/me/survey/{id}/memo")
+    public ServnowResponse<Object> saveInsightMemo(@Parameter (hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId, @RequestBody final MySurveysResultMemoRequest request) {
+        resultCommandService.saveInsightMemo(surveyId, request);
+        return ServnowResponse.success(CommonSuccessCode.OK);
+    }
+
+
     @GetMapping("/users/me/survey") // sort=newest, sort=oldest, sort=participants
     public ServnowResponse<List<MySurveyResponse>> getMySurveys(@Parameter (hidden = true) @UserId final Long userId, @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
         List<MySurveyResponse> surveys = surveyQueryService.getMySurveys(userId, sort);
         return ServnowResponse.success(CommonSuccessCode.OK, surveys);
-
     }
 
     @GetMapping("/users/me/point")

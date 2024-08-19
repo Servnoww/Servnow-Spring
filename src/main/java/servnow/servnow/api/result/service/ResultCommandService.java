@@ -3,6 +3,7 @@ package servnow.servnow.api.result.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import servnow.servnow.api.result.dto.request.MySurveysResultMemoRequest;
 import servnow.servnow.api.result.dto.request.ResultPostRequest;
 import servnow.servnow.api.user.service.UserFinder;
 import servnow.servnow.api.user.service.UserInfoFinder;
@@ -20,6 +21,8 @@ import servnow.servnow.domain.survey.model.Survey;
 import servnow.servnow.domain.survey.repository.SurveyRepository;
 import servnow.servnow.domain.surveyresult.model.SurveyResult;
 import servnow.servnow.domain.surveyresult.repository.SurveyResultRepository;
+import servnow.servnow.domain.surveyresultmemo.model.SurveyResultMemo;
+import servnow.servnow.domain.surveyresultmemo.repository.SurveyResultMemoRepository;
 import servnow.servnow.domain.user.model.UserInfo;
 
 import java.util.List;
@@ -42,6 +45,7 @@ public class ResultCommandService {
     private final SubjectiveResultUpdater subjectiveResultUpdater;
     private final MultipleChoiceResultUpdater multipleChoiceResultUpdater;
     private final SurveyResultRepository surveyResultRepository;
+    private final SurveyResultMemoRepository surveyResultMemoRepository;
 
     @Transactional
     public void createResult(final long userId, final ResultPostRequest resultPostRequest, final long surveyId) {
@@ -112,4 +116,22 @@ public class ResultCommandService {
 
         });
     }
+
+    @Transactional
+    public void saveInsightMemo(long surveyId, MySurveysResultMemoRequest request) {
+
+        for (MySurveysResultMemoRequest.QuestionMemo questionMemo : request.questions()) {
+            Question question = questionRepository.findById(questionMemo.questionId())
+                    .orElseThrow(() -> new NotFoundException(QuestionErrorCode.QUESTION_NOT_FOUND));
+
+            for (String memoContent : questionMemo.memos()) {
+                SurveyResultMemo newMemo = SurveyResultMemo.create(question, memoContent);
+                surveyResultMemoRepository.save(newMemo);
+            }
+        }
+
+
+
+    }
+
 }

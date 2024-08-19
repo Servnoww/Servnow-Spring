@@ -3,6 +3,7 @@ package servnow.servnow.api.result.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import servnow.servnow.api.result.dto.request.MySurveysResultMemoRequest;
 import servnow.servnow.api.result.dto.response.MySurveysResultResponse;
 import servnow.servnow.common.code.SurveyErrorCode;
 import servnow.servnow.common.exception.NotFoundException;
@@ -114,4 +115,5 @@ public class ResultQueryService {
                 ))
                 .collect(Collectors.toList());
     }
+
 }

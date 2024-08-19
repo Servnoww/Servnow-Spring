@@ -20,8 +20,25 @@ public class SurveyResultMemo {
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
-    @Column(nullable = true, length = 300)
+    @Column(nullable = false)
+    private String title;
+
+    @Column(name = "question_order", nullable = false)
+    private Integer questionOrder;
+
+    @Column(length = 300)
     private String content;
+
+    private SurveyResultMemo(Question question, String title, Integer questionOrder, String content) {
+        this.question = question;
+        this.title = title;
+        this.questionOrder = questionOrder;
+        this.content = content;
+    }
+
+    public static SurveyResultMemo create(Question question, String content) {
+        return new SurveyResultMemo(question, question.getTitle(), question.getQuestionOrder(), content);
+    }
 
 
 }

@@ -68,7 +68,7 @@ public class LoginController {
 
     // 회원가입 - 이메일 인증
     @PostMapping("/auth/join/identity-verification")
-    public ServnowResponse<Void> identityVerification(@RequestBody UserJoinRequest request) throws Exception {
+    public ServnowResponse<Void> identityVerification(@RequestBody EmailDuplicateRequest request) throws Exception {
         return userQueryService.identityVerification(request.email());
     }
 

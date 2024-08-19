@@ -56,7 +56,7 @@ public class LoginController {
 
     // 일반 회원가입
     @PostMapping("/auth/join")
-	public ServnowResponse<String> join(@RequestBody UserJoinRequest request) {
+	public ServnowResponse<String> join(@RequestBody UserJoinRequest request) throws Exception {
          if (request.email() != null && !request.email().isEmpty() &&
                 request.certificationNumber() != null && request.certificationNumber().equals(EmailService.ePw)) {
         		loginService.join(request);
@@ -69,18 +69,8 @@ public class LoginController {
 
     // 회원가입 - 이메일 인증
     @PostMapping("/auth/join/identity-verification")
-    public ServnowResponse<Void> identityVerification(@RequestBody EmailDuplicateRequest request) throws Exception {
+    public ServnowResponse<Void> identityVerification(@RequestBody UserJoinRequest request) throws Exception {
         return userQueryService.identityVerification(request.email());
-    }
-
-    // 회원가입 - 이메일 인증 번호 확인
-    @PostMapping("/auth/join/certification")
-    public ServnowResponse<Object> CertificationNumber(@RequestBody CertificationNumberRequest request) {
-        if (request.certificationNumber().equals(EmailService.ePw)) {
-            return ServnowResponse.success(CommonSuccessCode.OK);
-        } else {
-            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
-        }
     }
 
   @PostMapping("/auth/reissue")

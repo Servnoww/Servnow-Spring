@@ -20,6 +20,7 @@ import servnow.servnow.common.exception.BadRequestException;
 import servnow.servnow.common.exception.UnauthorizedException;
 import servnow.servnow.domain.user.model.User;
 import servnow.servnow.domain.user.model.UserInfo;
+import servnow.servnow.domain.user.model.enums.Gender;
 import servnow.servnow.domain.user.model.enums.Platform;
 import servnow.servnow.domain.user.repository.UserInfoRepository;
 import servnow.servnow.domain.user.repository.UserRepository;
@@ -89,6 +90,12 @@ public class LoginService {
 			throw new BadRequestException(LoginErrorCode.INVALID_EMAIL_FORMAT);
 		}
 
+		// 이메일 중복 확인
+		Optional<UserInfo> existingUserInfo = userInfoRepository.findByEmail(request.email());
+		if (existingUserInfo.isPresent()) {
+			throw new BadRequestException(LoginErrorCode.ALREADY_EXISTED_EMAIL);
+		}
+
 		// 필수 정보 확인
 		if (!isUserInfoValid(request)) {
 			throw new BadRequestException(LoginErrorCode.MISSING_REQUIRED_FIELD);
@@ -99,8 +106,11 @@ public class LoginService {
 
 		userRepository.save(newUser);
 
+		System.out.println(request.gender());
+		Gender gender = Gender.getEnumGenderFromStringGender(request.gender());
+
 		UserInfo newUserInfo = UserInfo.createMemberInfo(
-				newUser, request.nickname(), request.gender(), request.email(), LocalDate.now(), null, null);
+				newUser, request.nickname(), gender, request.email(), LocalDate.now(), null, null);
 		userInfoRepository.save(newUserInfo);
 	}
 

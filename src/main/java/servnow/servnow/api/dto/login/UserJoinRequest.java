@@ -14,6 +14,8 @@ public record UserJoinRequest(
         @Nullable
         String email,
         @Nullable
+        String certificationNumber,
+        @Nullable
         String nickname,
         @Nullable
         String gender,

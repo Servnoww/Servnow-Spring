@@ -33,6 +33,7 @@ public class UserFinder {
                 ACTIVE);
     }
     public Optional<User> findUserByPlatFormAndSeralId(final Platform platform, final String serialId) {
+      System.out.println("kkkkkk");
         return userRepository.findByPlatformAndSerialId(platform, serialId);
     }
 }

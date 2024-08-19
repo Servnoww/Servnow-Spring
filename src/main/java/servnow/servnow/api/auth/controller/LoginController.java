@@ -12,9 +12,14 @@ import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.dto.login.UserJoinRequest;
 import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
+import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
+import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
+import servnow.servnow.api.user.service.EmailService;
+import servnow.servnow.api.user.service.UserQueryService;
 import servnow.servnow.auth.UserId;
 import servnow.servnow.auth.jwt.Token;
 import servnow.servnow.common.code.CommonSuccessCode;
+import servnow.servnow.common.code.UserErrorCode;
 
 import java.io.IOException;
 
@@ -25,14 +30,14 @@ public class LoginController {
 
     private final KakaoService kakaoService;
     private final LoginService loginService;
+    private final UserQueryService userQueryService;
 
     // 카카오 로그인
     @PostMapping("/auth/kakao")
     public ServnowResponse<UserLoginResponse> kakaoLogin(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) final String accessToken) throws IOException {
+            @RequestHeader(HttpHeaders.AUTHORIZATION) final String accessToken) throws Exception {
         String token = accessToken.startsWith("Bearer ") ? accessToken.substring(7) : accessToken;
         final UserLoginResponse response = kakaoService.login(token, "KAKAO");
-
         return ServnowResponse.success(CommonSuccessCode.OK, response);
     }
 
@@ -52,9 +57,31 @@ public class LoginController {
     // 일반 회원가입
     @PostMapping("/auth/join")
 	public ServnowResponse<String> join(@RequestBody UserJoinRequest request) {
-		loginService.join(request);
-		return ServnowResponse.success(CommonSuccessCode.OK, "회원가입이 완료되었습니다.");
+         if (request.email() != null && !request.email().isEmpty() &&
+                request.certificationNumber() != null && request.certificationNumber().equals(EmailService.ePw)) {
+        		loginService.join(request);
+	        	return ServnowResponse.success(CommonSuccessCode.OK, "회원가입이 완료되었습니다.");
+        } else {
+            System.out.println("Controller out");
+            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+        }
 	}
+
+    // 회원가입 - 이메일 인증
+    @PostMapping("/auth/join/identity-verification")
+    public ServnowResponse<Void> identityVerification(@RequestBody EmailDuplicateRequest request) throws Exception {
+        return userQueryService.identityVerification(request.email());
+    }
+
+    // 회원가입 - 이메일 인증 번호 확인
+    @PostMapping("/auth/join/certification")
+    public ServnowResponse<Object> CertificationNumber(@RequestBody CertificationNumberRequest request) {
+        if (request.certificationNumber().equals(EmailService.ePw)) {
+            return ServnowResponse.success(CommonSuccessCode.OK);
+        } else {
+            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+        }
+    }
 
   @PostMapping("/auth/reissue")
   public ServnowResponse<ReissueTokenResponse> reissue(@RequestHeader("Authorization") String refreshToken) {

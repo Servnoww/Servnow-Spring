@@ -26,4 +26,5 @@ public interface SurveyResultRepository extends JpaRepository<SurveyResult, Long
 
     @Query("SELECT sbr FROM SubjectiveResult sbr WHERE sbr.surveyResult.survey.id = :surveyId")
     List<SubjectiveResult> findSubjectiveResultsBySurveyId(@Param("surveyId") Long surveyId);
+
 }

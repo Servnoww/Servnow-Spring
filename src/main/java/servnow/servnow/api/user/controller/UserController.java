@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import servnow.servnow.api.dto.ServnowResponse;
-import org.springframework.web.bind.annotation.*;
 import servnow.servnow.api.result.dto.request.MySurveysResultMemoRequest;
+import servnow.servnow.api.result.dto.response.MySurveysResultMemoResponse;
 import servnow.servnow.api.result.dto.response.MySurveysResultResponse;
 import servnow.servnow.api.result.service.ResultCommandService;
 import servnow.servnow.api.result.service.ResultQueryService;
@@ -103,6 +103,14 @@ public class UserController {
         resultCommandService.saveInsightMemo(surveyId, request);
         return ServnowResponse.success(CommonSuccessCode.OK);
     }
+
+    @GetMapping("/users/me/survey/{id}/memo/list")
+    public ServnowResponse<MySurveysResultMemoResponse> getInsightMemo(@Parameter (hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId) {
+        MySurveysResultMemoResponse result = resultQueryService.getInsightMemo(surveyId);
+        return ServnowResponse.success(CommonSuccessCode.OK, result);
+    }
+
+
 
 
     @GetMapping("/users/me/survey") // sort=newest, sort=oldest, sort=participants

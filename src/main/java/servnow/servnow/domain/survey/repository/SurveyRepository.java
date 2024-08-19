@@ -2,6 +2,8 @@ package servnow.servnow.domain.survey.repository;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,4 +35,5 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
 
   @Query("select s from Survey s left join fetch s.surveyResults order by size(s.surveyResults) desc")
   List<Survey> findAllOrderByParticipantsDesc();
+
 }

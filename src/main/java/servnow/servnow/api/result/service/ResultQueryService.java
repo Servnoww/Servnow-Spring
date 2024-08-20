@@ -3,16 +3,19 @@ package servnow.servnow.api.result.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import servnow.servnow.api.result.dto.response.MySurveysResultMemoResponse;
 import servnow.servnow.api.result.dto.response.MySurveysResultResponse;
 import servnow.servnow.common.code.SurveyErrorCode;
 import servnow.servnow.common.exception.NotFoundException;
 import servnow.servnow.domain.question.model.enums.QuestionType;
+import servnow.servnow.domain.survey.repository.SurveyRepository;
 import servnow.servnow.domain.surveyresult.repository.SurveyResultRepository;
 import servnow.servnow.domain.survey.model.Survey;
 import servnow.servnow.domain.question.model.Question;
 import servnow.servnow.domain.surveyresult.model.SurveyResult;
 import servnow.servnow.domain.subjectiveresult.model.SubjectiveResult;
 import servnow.servnow.domain.question.model.MultipleChoice;
+import servnow.servnow.domain.surveyresultmemo.model.SurveyResultMemo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,8 @@ import java.util.stream.Collectors;
 public class ResultQueryService {
 
     private final SurveyResultRepository surveyResultRepository;
+    private final SurveyRepository surveyRepository;
+
 
     @Transactional(readOnly = true)
     public MySurveysResultResponse getMySurveysResult(long surveyId) {
@@ -113,5 +118,40 @@ public class ResultQueryService {
                         result.getContent()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public MySurveysResultMemoResponse getInsightMemo(long surveyId) {
+        // 1. Survey와 Section을 먼저 로드
+        Survey survey = surveyRepository.findByIdWithSections(surveyId)
+                .orElseThrow(() -> new NotFoundException(SurveyErrorCode.SURVEY_NOT_FOUND));
+
+        // 2. Section에 속한 Question과 관련된 Memo를 로드
+        survey.getSections().forEach(section -> section.getQuestions().forEach(question -> {
+            question.getSurveyResultMemos().size();  // Lazy loading
+        }));
+
+        // 3. 질문과 메모를 매핑하여 응답 객체를 생성
+        List<Question> questions = survey.getSections().stream()
+                .flatMap(section -> section.getQuestions().stream())
+                .toList();
+
+        Map<Long, List<String>> memosByQuestionId = questions.stream()
+                .flatMap(question -> question.getSurveyResultMemos().stream())
+                .collect(Collectors.groupingBy(
+                        memo -> memo.getQuestion().getId(),
+                        Collectors.mapping(SurveyResultMemo::getContent, Collectors.toList())
+                ));
+
+        List<MySurveysResultMemoResponse.QuestionMemo> questionMemos = questions.stream()
+                .map(question -> new MySurveysResultMemoResponse.QuestionMemo(
+                        question.getId(),
+                        question.getQuestionOrder(),
+                        question.getTitle(),
+                        memosByQuestionId.getOrDefault(question.getId(), new ArrayList<>())
+                ))
+                .collect(Collectors.toList());
+
+        return new MySurveysResultMemoResponse(questionMemos);
     }
 }

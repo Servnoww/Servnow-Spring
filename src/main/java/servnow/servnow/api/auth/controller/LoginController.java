@@ -84,7 +84,7 @@ public class LoginController {
     }
 
     // 아이디 중복 확인
-    @GetMapping("/auth/duplicate/id")
+    @PostMapping("/auth/duplicate/id")
     public ServnowResponse<Boolean> getSerialIdDuplicate(@RequestBody SerialIdDuplicateRequest request) {
         return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getSerialIdDuplicate(request.serialId()));
     }

@@ -18,12 +18,28 @@ public class UserIdArgumentResolver implements HandlerMethodArgumentResolver {
         return hasUserIdAnnotation && isLongType;
     }
 
+//    @Override
+//    public Object resolveArgument(
+//            MethodParameter parameter,
+//            ModelAndViewContainer mavContainer,
+//            NativeWebRequest webRequest,
+//            WebDataBinderFactory binderFactory) throws Exception {
+//        return SecurityContextHolder.getContext()
+//                .getAuthentication()
+//                .getPrincipal();
+//    }
+
     @Override
     public Object resolveArgument(
             MethodParameter parameter,
             ModelAndViewContainer mavContainer,
             NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory) throws Exception {
+
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            return null;
+        }
+
         return SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();

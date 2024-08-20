@@ -54,12 +54,20 @@ public class SurveyController {
 
   @GetMapping("/survey")
   public ServnowResponse<List<SurveySearchGetResponse>> searchSurvey(@Parameter(hidden = true) @UserId Long userId, @RequestParam(name = "keyword") String keyword, @RequestParam(name = "filter", defaultValue = "false") boolean filter) {
+    // 로그인 하지 않은 경우
+    if (userId == null) {
+      return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.searchSurvey(0L, keyword, filter));
+    }
     return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.searchSurvey(userId, keyword, filter));
   }
   
   @GetMapping("/survey/home")
   public ServnowResponse<List<HomeSurveyGetResponse>> getHome(@Parameter(hidden = true) @UserId Long userId, @RequestParam(name = "sort", defaultValue = "deadline") String sort) {
-    // 유저 임시 생성, 추후 아이디 로직 머지 후 고칠 예정
+    // 로그인 하지 않은 경우
+    if (userId == null) {
+      return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveyList(0L, sort));
+    }
     return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveyList(userId, sort));
   }
+
 }

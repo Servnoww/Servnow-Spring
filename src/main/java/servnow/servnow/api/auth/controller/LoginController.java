@@ -14,6 +14,7 @@ import servnow.servnow.api.dto.login.UserLoginRequest;
 import servnow.servnow.api.dto.login.UserLoginResponse;
 import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
 import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
+import servnow.servnow.api.user.dto.request.SerialIdDuplicateRequest;
 import servnow.servnow.api.user.service.EmailService;
 import servnow.servnow.api.user.service.UserQueryService;
 import servnow.servnow.auth.UserId;
@@ -70,6 +71,22 @@ public class LoginController {
     @PostMapping("/auth/join/identity-verification")
     public ServnowResponse<Void> identityVerification(@RequestBody EmailDuplicateRequest request) throws Exception {
         return userQueryService.identityVerification(request.email());
+    }
+
+    // 회원가입 - 인증 번호 확인
+    @PostMapping("/auth/join/certification")
+    public ServnowResponse<Object> CertificationNumber(@RequestBody CertificationNumberRequest request) {
+        if (request.certificationNumber().equals(EmailService.ePw)) {
+            return ServnowResponse.success(CommonSuccessCode.OK);
+        } else {
+            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+        }
+    }
+
+    // 아이디 중복 확인
+    @GetMapping("/auth/duplicate/id")
+    public ServnowResponse<Boolean> getSerialIdDuplicate(@RequestBody SerialIdDuplicateRequest request) {
+        return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getSerialIdDuplicate(request.serialId()));
     }
 
   @PostMapping("/auth/reissue")

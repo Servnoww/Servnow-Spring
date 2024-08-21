@@ -66,6 +66,7 @@ public class ResultQueryService {
                                 return new MySurveysResultResponse.QuestionResult(
                                         question.getQuestionOrder(),
                                         question.getTitle(),
+                                        question.getContent(),
                                         questionType,
                                         question.isEssential(),
                                         question.isDuplicate(),

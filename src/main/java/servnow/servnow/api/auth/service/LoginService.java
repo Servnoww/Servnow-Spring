@@ -110,7 +110,7 @@ public class LoginService {
 		Gender gender = Gender.getEnumGenderFromStringGender(request.gender());
 
 		UserInfo newUserInfo = UserInfo.createMemberInfo(
-				newUser, request.nickname(), gender, request.email(), request.birth(), null, null);
+				newUser, request.nickname(), gender, request.email(), request.birth(), null, "/roundLogo1.png");
 		userInfoRepository.save(newUserInfo);
 	}
 

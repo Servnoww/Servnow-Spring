@@ -23,8 +23,8 @@ public class UserCommandService {
     public void profileSave(final Long userId, SaveEditProfilePageRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_FOUND));
-        UserInfo userInfo = userInfoRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(UserInfoErrorCode.USER_NOT_FOUND));
+        UserInfo userInfo = userInfoRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException(UserInfoErrorCode.USER_INFO_NOT_FOUND));
 
         String password = request.password() != null ? request.password().trim() : "";
         String reconfirmPassword = request.reconfirmPassword() != null ? request.reconfirmPassword().trim() : "";

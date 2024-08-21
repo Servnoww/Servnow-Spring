@@ -33,15 +33,15 @@ public class UserQueryService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_FOUND));
         UserInfo userinfo = userInfoRepository.findByUserId(userId)
-                .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_INFO_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(UserInfoErrorCode.USER_INFO_NOT_FOUND));
         return MyPageResponse.of(userinfo, user);
     }
 
     public EditProfilePageResponse getEditProfilePage(final Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_FOUND));
-        UserInfo userInfo = userInfoRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(UserInfoErrorCode.USER_NOT_FOUND));
+        UserInfo userInfo = userInfoRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException(UserInfoErrorCode.USER_INFO_NOT_FOUND));
 
         if (user.getPlatform() == Platform.KAKAO) {
             return KakaoEditProfilePageResponse.of(userInfo);

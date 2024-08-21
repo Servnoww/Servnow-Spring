@@ -6,10 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.survey.dto.request.SurveyPostRequest;
-import servnow.servnow.api.survey.dto.response.HomeSurveyGetResponse;
-import servnow.servnow.api.survey.dto.response.SurveyGetResponse;
-import servnow.servnow.api.survey.dto.response.SurveyIntroGetResponse;
-import servnow.servnow.api.survey.dto.response.SurveySearchGetResponse;
+import servnow.servnow.api.survey.dto.response.*;
 import servnow.servnow.api.survey.service.SurveyCommandService;
 import servnow.servnow.api.survey.service.SurveyQueryService;
 import servnow.servnow.auth.UserId;
@@ -53,7 +50,7 @@ public class SurveyController {
   }
 
   @GetMapping("/survey")
-  public ServnowResponse<List<SurveySearchGetResponse>> searchSurvey(@Parameter(hidden = true) @UserId Long userId, @RequestParam(name = "keyword") String keyword, @RequestParam(name = "filter", defaultValue = "false") boolean filter) {
+  public ServnowResponse<HomeSurveyListGetResponse> searchSurvey(@Parameter(hidden = true) @UserId Long userId, @RequestParam(name = "keyword") String keyword, @RequestParam(name = "filter", defaultValue = "false") boolean filter) {
     // 로그인 하지 않은 경우
     if (userId == null) {
       return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.searchSurvey(0L, keyword, filter));
@@ -62,7 +59,7 @@ public class SurveyController {
   }
   
   @GetMapping("/survey/home")
-  public ServnowResponse<List<HomeSurveyGetResponse>> getHome(@Parameter(hidden = true) @UserId Long userId, @RequestParam(name = "sort", defaultValue = "deadline") String sort) {
+  public ServnowResponse<HomeSurveyListGetResponse> getHome(@Parameter(hidden = true) @UserId Long userId, @RequestParam(name = "sort", defaultValue = "deadline") String sort) {
     // 로그인 하지 않은 경우
     if (userId == null) {
       return ServnowResponse.success(CommonSuccessCode.OK, surveyQueryService.getSurveyList(0L, sort));

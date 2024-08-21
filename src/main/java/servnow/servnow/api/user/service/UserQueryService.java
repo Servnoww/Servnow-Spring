@@ -32,7 +32,7 @@ public class UserQueryService {
     public MyPageResponse getMyPage(final Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_FOUND));
-        UserInfo userinfo = userInfoRepository.findById(userId)
+        UserInfo userinfo = userInfoRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_INFO_NOT_FOUND));
         return MyPageResponse.of(userinfo, user);
     }

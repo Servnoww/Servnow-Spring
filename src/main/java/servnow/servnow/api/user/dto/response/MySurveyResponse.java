@@ -10,6 +10,7 @@ public record MySurveyResponse(
         CharacterType characterType,
         String title,
         LocalDateTime createdAt,
+        LocalDateTime expiredAt,
         int entry
 
 ) {
@@ -19,6 +20,7 @@ public record MySurveyResponse(
                 survey.getCharacterType(),
                 survey.getTitle(),
                 survey.getCreatedAt(),
+                survey.getExpiredAt(),
                 survey.getSurveyResults().size()
         );
     }

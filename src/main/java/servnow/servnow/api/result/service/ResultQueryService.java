@@ -136,19 +136,19 @@ public class ResultQueryService {
                 .flatMap(section -> section.getQuestions().stream())
                 .toList();
 
-        Map<Long, List<String>> memosByQuestionId = questions.stream()
-                .flatMap(question -> question.getSurveyResultMemos().stream())
-                .collect(Collectors.groupingBy(
-                        memo -> memo.getQuestion().getId(),
-                        Collectors.mapping(SurveyResultMemo::getContent, Collectors.toList())
-                ));
-
         List<MySurveysResultMemoResponse.QuestionMemo> questionMemos = questions.stream()
                 .map(question -> new MySurveysResultMemoResponse.QuestionMemo(
                         question.getId(),
                         question.getQuestionOrder(),
                         question.getTitle(),
-                        memosByQuestionId.getOrDefault(question.getId(), new ArrayList<>())
+                        question.getSurveyResultMemos().stream()
+                                .collect(Collectors.groupingBy(
+                                        SurveyResultMemo::getId,
+                                        Collectors.mapping(SurveyResultMemo::getContent, Collectors.toList())
+                                ))
+                                .entrySet().stream()
+                                .map(entry -> Map.of(entry.getKey(), entry.getValue().get(0)))
+                                .collect(Collectors.toList())
                 ))
                 .collect(Collectors.toList());
 

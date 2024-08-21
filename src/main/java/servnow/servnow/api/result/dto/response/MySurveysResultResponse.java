@@ -16,6 +16,7 @@ public record MySurveysResultResponse(
 
     public record QuestionResult(
             int questionNumber,
+            String questionTitle,
             String questionContent,
             QuestionType questionType,
             boolean isRequired,

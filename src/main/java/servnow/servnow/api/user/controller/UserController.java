@@ -78,7 +78,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/users/me/info/profile")
+    @PatchMapping("/users/me/info/profile-img")
     public ServnowResponse<UpdateProfileUrlRequest> updateProfile(@RequestParam("file") MultipartFile multipartFile, @UserId final Long userId) {
         userCommandService.updateProfile(multipartFile, userId);
         return ServnowResponse.success(CommonSuccessCode.OK);

@@ -42,7 +42,9 @@ public class SurveyResultMemo {
         return new SurveyResultMemo(question, question.getTitle(), question.getQuestionOrder(), content);
     }
 
-
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }
 
 

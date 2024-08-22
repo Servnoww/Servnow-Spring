@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import servnow.servnow.api.result.dto.request.MySurveysResultMemoRequest;
 import servnow.servnow.api.result.dto.request.ResultPostRequest;
+import servnow.servnow.api.result.dto.request.SurveyResultMemosPatchRequest;
 import servnow.servnow.api.result.service.surveyresultmemo.SurveyResultMemoFinder;
 import servnow.servnow.api.result.service.surveyresultmemo.SurveyResultMemoUpdater;
 import servnow.servnow.api.user.service.UserFinder;
@@ -143,5 +144,11 @@ public class ResultCommandService {
     @Transactional
     public void deleteSurveyMemo(final long id) {
         surveyResultMemoUpdater.deleteById(surveyResultMemoFinder.findById(id).getId());
+    }
+
+    @Transactional
+    public void updateSurveyMemos(final SurveyResultMemosPatchRequest surveyResultMemosPatchRequest) {
+        surveyResultMemosPatchRequest.memos().forEach(memos ->
+            surveyResultMemoFinder.findById(memos.id()).updateContent(memos.content()));
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.result.dto.request.MySurveysResultMemoRequest;
 import servnow.servnow.api.result.dto.request.SurveyResultMemosPatchRequest;
@@ -19,10 +20,7 @@ import servnow.servnow.api.result.dto.response.MySurveysResultMemoResponse;
 import servnow.servnow.api.result.dto.response.MySurveysResultResponse;
 import servnow.servnow.api.result.service.ResultCommandService;
 import servnow.servnow.api.result.service.ResultQueryService;
-import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
-import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
-import servnow.servnow.api.user.dto.request.SaveEditProfilePageRequest;
-import servnow.servnow.api.user.dto.request.SerialIdDuplicateRequest;
+import servnow.servnow.api.user.dto.request.*;
 import servnow.servnow.api.user.dto.response.EditProfilePageResponse;
 import servnow.servnow.api.user.dto.response.MyPageResponse;
 import servnow.servnow.api.user.dto.response.MySurveyResponse;
@@ -79,6 +77,13 @@ public class UserController {
             return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
         }
     }
+
+    @PatchMapping("/users/me/info/profile")
+    public ServnowResponse<UpdateProfileUrlRequest> updateProfile(@RequestParam("file") MultipartFile multipartFile, @UserId final Long userId) {
+        userCommandService.updateProfile(multipartFile, userId);
+        return ServnowResponse.success(CommonSuccessCode.OK);
+    }
+
 
     @PatchMapping("/users/me/info/save")
     public ServnowResponse<SaveEditProfilePageRequest> profileSave(@Parameter (hidden = true) @UserId final Long userId, @RequestBody final SaveEditProfilePageRequest request) {

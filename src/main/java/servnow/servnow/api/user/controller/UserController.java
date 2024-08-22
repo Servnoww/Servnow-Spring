@@ -1,8 +1,10 @@
 package servnow.servnow.api.user.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import lombok.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.result.dto.request.MySurveysResultMemoRequest;
+import servnow.servnow.api.result.dto.request.SurveyResultMemosPatchRequest;
 import servnow.servnow.api.result.dto.response.MySurveysResultMemoResponse;
 import servnow.servnow.api.result.dto.response.MySurveysResultResponse;
 import servnow.servnow.api.result.service.ResultCommandService;
@@ -124,6 +127,12 @@ public class UserController {
     @DeleteMapping("/users/me/survey/{id}/memo")
     public ServnowResponse<Void> deleteSurveyMemo(@PathVariable(name = "id") Long id) {
         resultCommandService.deleteSurveyMemo(id);
+        return ServnowResponse.success(CommonSuccessCode.OK);
+    }
+
+    @PatchMapping("/users/me/survey/memo")
+    public ServnowResponse<Void> updateSurveyMemos(@RequestBody SurveyResultMemosPatchRequest surveyResultMemosPatchRequest) {
+        resultCommandService.updateSurveyMemos(surveyResultMemosPatchRequest);
         return ServnowResponse.success(CommonSuccessCode.OK);
     }
 }

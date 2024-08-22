@@ -22,8 +22,6 @@ public class UserCommandService {
     private final UserInfoRepository userInfoRepository;
     private final UserRepository userRepository;
     private final UserInfoFinder userInfoFinder;
-    private final SurveyResultMemoFinder surveyResultMemoFinder;
-    private final SurveyResultMemoUpdater surveyResultMemoUpdater;
 
     public void profileSave(final Long userId, SaveEditProfilePageRequest request) {
         User user = userRepository.findById(userId)
@@ -63,10 +61,5 @@ public class UserCommandService {
             userInfo.setEmail(request.email());
             userInfoRepository.save(userInfo);
         }
-    }
-
-    @Transactional
-    public void deleteSurveyMemo(final long id) {
-        surveyResultMemoUpdater.deleteById(surveyResultMemoFinder.findById(id).getId());
     }
 }

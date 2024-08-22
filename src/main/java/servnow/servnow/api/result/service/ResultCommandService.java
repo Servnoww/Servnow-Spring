@@ -1,10 +1,12 @@
 package servnow.servnow.api.result.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import servnow.servnow.api.result.dto.request.MySurveysResultMemoRequest;
 import servnow.servnow.api.result.dto.request.ResultPostRequest;
+import servnow.servnow.api.result.service.surveyresultmemo.SurveyResultMemoFinder;
+import servnow.servnow.api.result.service.surveyresultmemo.SurveyResultMemoUpdater;
 import servnow.servnow.api.user.service.UserFinder;
 import servnow.servnow.api.user.service.UserInfoFinder;
 import servnow.servnow.api.user.service.UserInfoUpdater;
@@ -46,6 +48,8 @@ public class ResultCommandService {
     private final MultipleChoiceResultUpdater multipleChoiceResultUpdater;
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyResultMemoRepository surveyResultMemoRepository;
+    private final SurveyResultMemoFinder surveyResultMemoFinder;
+    private final SurveyResultMemoUpdater surveyResultMemoUpdater;
 
     @Transactional
     public void createResult(final long userId, final ResultPostRequest resultPostRequest, final long surveyId) {
@@ -136,4 +140,8 @@ public class ResultCommandService {
         }
     }
 
+    @Transactional
+    public void deleteSurveyMemo(final long id) {
+        surveyResultMemoUpdater.deleteById(surveyResultMemoFinder.findById(id).getId());
+    }
 }

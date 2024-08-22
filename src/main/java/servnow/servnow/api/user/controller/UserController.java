@@ -120,4 +120,10 @@ public class UserController {
     public ServnowResponse<UserPointGetResponse> getUserPoint(@Parameter(hidden = true) @UserId final Long userId) {
         return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getUserPoint(userId));
     }
+
+    @DeleteMapping("/users/me/survey/{id}/memo")
+    public ServnowResponse<Void> deleteSurveyMemo(@PathVariable(name = "id") Long id) {
+        resultCommandService.deleteSurveyMemo(id);
+        return ServnowResponse.success(CommonSuccessCode.OK);
+    }
 }

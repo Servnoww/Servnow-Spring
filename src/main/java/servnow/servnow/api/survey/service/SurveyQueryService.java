@@ -35,8 +35,8 @@ public class SurveyQueryService {
   }
 
   @Transactional(readOnly = true)
-  public HomeSurveyListGetResponse searchSurvey(final Long userId, final String keyword, final boolean filter) {
-    return HomeSurveyListGetResponse.of(surveyFinder.findByKeyword(userId, keyword, filter));
+  public HomeSurveyListGetResponse searchSurvey(final Long userId, final List<String> keywords, final boolean filter) {
+    return HomeSurveyListGetResponse.of(surveyFinder.findByKeyword(userId, keywords, filter));
   }
   
   @Transactional(readOnly = true)

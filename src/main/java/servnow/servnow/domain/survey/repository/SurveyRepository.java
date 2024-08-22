@@ -3,6 +3,7 @@ package servnow.servnow.domain.survey.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,11 +15,7 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
   @Query("select s from Survey s join fetch s.sections sec where s.id = :id")
   Optional<Survey> findByIdWithSections(@Param("id") long id);
 
-  @Query("select s from Survey s left join fetch s.surveyResults sr where s.title like %:keyword% and s.expiredAt >= current date")
-  List<Survey> findAllByKeyword(@Param("keyword") String keyword);
-
-  @Query("select s from Survey s left join fetch s.surveyResults sr where s.title like %:keyword% and s.reward is not null and s.expiredAt >= current date")
-  List<Survey> findAllByKeywordWithFilter(@Param("keyword") String keyword);
+  List<Survey> findAll(Specification<Survey> spec);
 
   // userId로 Survey 목록 조회, createdAt 기준 오름차순 정렬
   List<Survey> findByUserIdOrderByCreatedAtAsc(long userId);

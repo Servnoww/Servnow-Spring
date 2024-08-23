@@ -58,6 +58,7 @@ public class UserCommandService {
         if (userInfoFinder.isEmailDuplicate(request.serialId())) {
             throw new BadRequestException(UserErrorCode.DUPLICATE_SERIAL_ID);
         }
+        userInfo.setNickname(request.nickname());
         user.setSerialId(request.serialId());
         userRepository.save(user);
         userInfoRepository.save(userInfo);

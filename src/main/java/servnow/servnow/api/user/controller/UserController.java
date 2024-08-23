@@ -18,6 +18,7 @@ import servnow.servnow.api.result.dto.request.MySurveysResultMemoRequest;
 import servnow.servnow.api.result.dto.request.SurveyResultMemosPatchRequest;
 import servnow.servnow.api.result.dto.response.MySurveysResultMemoResponse;
 import servnow.servnow.api.result.dto.response.MySurveysResultResponse;
+import servnow.servnow.api.result.dto.response.UserSurveyAnswerResultResponse;
 import servnow.servnow.api.result.service.ResultCommandService;
 import servnow.servnow.api.result.service.ResultQueryService;
 import servnow.servnow.api.user.dto.request.*;
@@ -107,6 +108,14 @@ public class UserController {
         MySurveysResultResponse result = resultQueryService.getMySurveysResult(surveyId);
         return ServnowResponse.success(CommonSuccessCode.OK, result);
     }
+
+    // 나의 닫ㅂ변
+    @GetMapping("/users/me/survey/{id}/answer")
+    public ServnowResponse<UserSurveyAnswerResultResponse> getMyAnswersResult(@Parameter (hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId) {
+        UserSurveyAnswerResultResponse result = resultQueryService.getMyAnswerResult(surveyId, userId);
+        return ServnowResponse.success(CommonSuccessCode.OK, result);
+    }
+
 
     @PostMapping("/users/me/survey/{id}/memo")
     public ServnowResponse<Object> saveInsightMemo(@Parameter (hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId, @RequestBody final MySurveysResultMemoRequest request) {

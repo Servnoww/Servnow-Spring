@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import servnow.servnow.api.result.dto.response.MySurveysResultMemoResponse;
 import servnow.servnow.api.result.dto.response.MySurveysResultResponse;
+import servnow.servnow.api.survey.service.SurveyFinder;
+import servnow.servnow.api.user.dto.response.MySurveyResponse;
 import servnow.servnow.common.code.SurveyErrorCode;
 import servnow.servnow.common.exception.NotFoundException;
 import servnow.servnow.domain.question.model.enums.QuestionType;
@@ -17,9 +19,7 @@ import servnow.servnow.domain.subjectiveresult.model.SubjectiveResult;
 import servnow.servnow.domain.question.model.MultipleChoice;
 import servnow.servnow.domain.surveyresultmemo.model.SurveyResultMemo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +28,7 @@ public class ResultQueryService {
 
     private final SurveyResultRepository surveyResultRepository;
     private final SurveyRepository surveyRepository;
+    private final SurveyFinder surveyFinder;
 
 
     @Transactional(readOnly = true)
@@ -154,5 +155,27 @@ public class ResultQueryService {
                 .collect(Collectors.toList());
 
         return new MySurveysResultMemoResponse(questionMemos);
+    }
+
+    public List<MySurveyResponse> getJoinSurveys(final long userId, String sort) {
+        List<Survey> userSurveys;
+
+        switch (sort) {
+            case "newest":
+                userSurveys = surveyRepository.findJoinedSurveysOrderByNewest(userId);
+                break;
+            case "oldest":
+                userSurveys = surveyRepository.findJoinedSurveysOrderByOldest(userId);
+                break;
+            case "participants":
+                userSurveys = surveyRepository.findJoinedSurveysOrderByParticipantCountDesc(userId);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid sort option: " + sort);
+        }
+
+        return userSurveys.stream()
+                .map(MySurveyResponse::of)
+                .collect(Collectors.toList());
     }
 }

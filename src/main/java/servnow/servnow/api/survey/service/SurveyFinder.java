@@ -13,6 +13,7 @@ import servnow.servnow.domain.survey.model.Survey;
 import servnow.servnow.domain.survey.repository.SurveyRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,4 +83,5 @@ public class SurveyFinder {
             .map(survey -> HomeSurveyGetResponse.of(survey, userId))
             .collect(Collectors.toList());
   }
+
 }

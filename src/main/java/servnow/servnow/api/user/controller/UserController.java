@@ -126,6 +126,13 @@ public class UserController {
         return ServnowResponse.success(CommonSuccessCode.OK, surveys);
     }
 
+    @GetMapping("/users/me/survey/join")
+    public ServnowResponse<List<MySurveyResponse>> getJoinSurveys(@Parameter(hidden = true) @UserId final Long userId,
+                                                                  @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
+        List<MySurveyResponse> surveys = resultQueryService.getJoinSurveys(userId, sort);
+        return ServnowResponse.success(CommonSuccessCode.OK, surveys);
+    }
+
     @GetMapping("/users/me/point")
     public ServnowResponse<UserPointGetResponse> getUserPoint(@Parameter(hidden = true) @UserId final Long userId) {
         return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getUserPoint(userId));

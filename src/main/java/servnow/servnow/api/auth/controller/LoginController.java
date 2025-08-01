@@ -14,6 +14,8 @@ import servnow.servnow.api.dto.login.UserLoginResponse;
 import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
 import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
 import servnow.servnow.api.user.dto.request.SerialIdDuplicateRequest;
+import servnow.servnow.api.user.service.EmailCommandService;
+import servnow.servnow.api.user.service.EmailQueryService;
 import servnow.servnow.api.user.service.UserQueryService;
 import servnow.servnow.auth.UserId;
 import servnow.servnow.common.code.CommonSuccessCode;
@@ -27,6 +29,8 @@ public class LoginController {
     private final KakaoService kakaoService;
     private final LoginService loginService;
     private final UserQueryService userQueryService;
+    private final EmailQueryService emailQueryService;
+    private final EmailCommandService emailCommandService;
 
     // 카카오 로그인
     @PostMapping("/auth/kakao")
@@ -54,7 +58,7 @@ public class LoginController {
     @PostMapping("/auth/join")
 	public ServnowResponse<String> join(@RequestBody UserJoinRequest request) throws Exception {
          if (request.email() != null && !request.email().isEmpty() &&
-                request.certificationNumber() != null && request.certificationNumber().equals(EmailService.ePw)) {
+                request.certificationNumber() != null && emailQueryService.verifyCode(request.email(), request.certificationNumber())) {
         		loginService.join(request);
 	        	return ServnowResponse.success(CommonSuccessCode.OK, "회원가입이 완료되었습니다.");
         } else {
@@ -65,13 +69,15 @@ public class LoginController {
     // 회원가입 - 이메일 인증
     @PostMapping("/auth/join/identity-verification")
     public ServnowResponse<Void> identityVerification(@RequestBody EmailDuplicateRequest request) throws Exception {
-        return userQueryService.identityVerification(request.email());
+        emailCommandService.sendVerificationEmail(request.email());
+        return ServnowResponse.success(CommonSuccessCode.OK);
     }
 
     // 회원가입 - 인증 번호 확인
     @PostMapping("/auth/join/certification")
     public ServnowResponse<Object> CertificationNumber(@RequestBody CertificationNumberRequest request) {
-        if (request.certificationNumber().equals(EmailService.ePw)) {
+        boolean isVerified = emailQueryService.verifyCode(request.email(), request.certificationNumber());
+        if (isVerified) {
             return ServnowResponse.success(CommonSuccessCode.OK);
         } else {
             return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);

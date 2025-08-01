@@ -17,7 +17,7 @@ public class EmailCommandService {
     private final EmailVerificationService emailVerificationService;
     private final EmailCodeGenerator emailCodeGenerator;
 
-    public void sendVerificationEmail(String email) throws Exception {
+    public String sendVerificationEmail(String email) throws Exception {
         String code = emailCodeGenerator.generateCode();
 
         // Redis에 인증번호 저장
@@ -30,6 +30,8 @@ public class EmailCommandService {
         } catch (MailException e) {
             throw new NotFoundException(UserErrorCode.SEND_CERTIFICATION_NUMBER);
         }
+
+        return code;
     }
 
     private MimeMessage createMessage(String to, String code) throws Exception {

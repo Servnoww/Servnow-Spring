@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import servnow.servnow.api.dto.ServnowResponse;
+import servnow.servnow.api.user.service.EmailCommandService;
 import servnow.servnow.common.code.CommonSuccessCode;
 import servnow.servnow.common.code.LoginErrorCode;
 import servnow.servnow.common.code.UserErrorCode;
@@ -21,6 +22,7 @@ public class FindInfoService {
     private final UserRepository userRepository;
     private final UserInfoRepository userInfoRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailCommandService emailCommandService;
 
     /**
      * 이메일 존재 여부 확인
@@ -29,7 +31,7 @@ public class FindInfoService {
         Optional<UserInfo> userInfo = userInfoRepository.findByEmail(email);
 
         if (userInfo.isPresent()) {
-            String confirm = emailService.sendSimpleMessage(email);
+            String confirm = emailCommandService.sendVerificationEmail(email);
             String serialId = userInfo.get().getUser().getSerialId();
 
             if (confirm.isEmpty()) {

@@ -7,7 +7,6 @@ import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.dto.login.UserChangePwRequest;
 import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
 import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
-import servnow.servnow.api.user.service.EmailService;
 import servnow.servnow.api.user.service.UserCommandService;
 import servnow.servnow.api.user.service.UserQueryService;
 import servnow.servnow.common.code.CommonSuccessCode;
@@ -15,7 +14,6 @@ import servnow.servnow.common.code.LoginErrorCode;
 import servnow.servnow.common.code.UserErrorCode;
 import servnow.servnow.domain.user.model.User;
 import servnow.servnow.domain.user.model.enums.Platform;
-import servnow.servnow.domain.user.repository.UserInfoRepository;
 import servnow.servnow.domain.user.repository.UserRepository;
 
 import java.util.Optional;

@@ -1,6 +1,5 @@
 package servnow.servnow.api.auth.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -15,14 +14,10 @@ import servnow.servnow.api.dto.login.UserLoginResponse;
 import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
 import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
 import servnow.servnow.api.user.dto.request.SerialIdDuplicateRequest;
-import servnow.servnow.api.user.service.EmailService;
 import servnow.servnow.api.user.service.UserQueryService;
 import servnow.servnow.auth.UserId;
-import servnow.servnow.auth.jwt.Token;
 import servnow.servnow.common.code.CommonSuccessCode;
 import servnow.servnow.common.code.UserErrorCode;
-
-import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor

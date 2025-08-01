@@ -27,7 +27,8 @@ import servnow.servnow.api.user.dto.response.MyPageResponse;
 import servnow.servnow.api.user.dto.response.MySurveyResponse;
 import servnow.servnow.api.survey.service.SurveyQueryService;
 import servnow.servnow.api.user.dto.response.UserPointGetResponse;
-import servnow.servnow.api.user.service.EmailService;
+import servnow.servnow.api.user.service.EmailCommandService;
+import servnow.servnow.api.user.service.EmailQueryService;
 import servnow.servnow.api.user.service.UserCommandService;
 import servnow.servnow.api.user.service.UserQueryService;
 import servnow.servnow.auth.UserId;
@@ -46,17 +47,18 @@ public class UserController {
     private final ResultQueryService resultQueryService;
     private final ResultCommandService resultCommandService;
     private final SurveyQueryService surveyQueryService;
-
+    private final EmailCommandService emailCommandService;
+    private final EmailQueryService emailQueryService;
 
 
     // 아직 유저 정보를 넘기는 방식이 정해지지 않아서 UserQueryService에서 userId값을 고정하여 테스트 함
     @GetMapping("/users/me")
-    public ServnowResponse<MyPageResponse> getMyPage(@Parameter (hidden = true) @UserId final Long userId) {
+    public ServnowResponse<MyPageResponse> getMyPage(@Parameter(hidden = true) @UserId final Long userId) {
         return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getMyPage(userId));
     }
 
     @GetMapping("/users/me/info")
-    public ServnowResponse<EditProfilePageResponse> getEditProfilePage(@Parameter (hidden = true) @UserId final Long userId) {
+    public ServnowResponse<EditProfilePageResponse> getEditProfilePage(@Parameter(hidden = true) @UserId final Long userId) {
         return ServnowResponse.success(CommonSuccessCode.OK, userQueryService.getEditProfilePage(userId));
     }
 
@@ -67,12 +69,17 @@ public class UserController {
 
     @PostMapping("/users/me/info/identity-verification")
     public ServnowResponse<Void> identityVerification(@RequestBody EmailDuplicateRequest request) throws Exception {
-        return userQueryService.identityVerification(request.email());
+        if (userQueryService.emailDuplicate(request.email())) {
+            return ServnowResponse.fail(UserErrorCode.EMAIL_DUPLICATE);
+        }
+        emailCommandService.sendVerificationEmail(request.email());
+        return ServnowResponse.success(CommonSuccessCode.OK);
     }
 
     @PostMapping("/users/me/info/certification")
     public ServnowResponse<Object> CertificationNumber(@RequestBody CertificationNumberRequest request) {
-        if (request.certificationNumber().equals(EmailService.ePw)) {
+        boolean isValid = emailQueryService.verifyCode(request.email(), request.certificationNumber());
+        if (isValid) {
             return ServnowResponse.success(CommonSuccessCode.OK);
         } else {
             return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
@@ -87,57 +94,69 @@ public class UserController {
 
 
     @PatchMapping("/users/me/info/save")
-    public ServnowResponse<SaveEditProfilePageRequest> profileSave(@Parameter (hidden = true) @UserId final Long userId, @RequestBody final SaveEditProfilePageRequest request) {
+    public ServnowResponse<SaveEditProfilePageRequest> profileSave(@Parameter(hidden = true) @UserId final Long userId, @RequestBody final SaveEditProfilePageRequest request) {
         // 이메일이 변경되었고, 인증번호가 있는 경우
-        if (request.email() != null && !request.email().isEmpty() &&
-                request.certificationNumber() != null && request.certificationNumber().equals(EmailService.ePw)) {
-            userCommandService.profileSave(userId, request);
-            return ServnowResponse.success(CommonSuccessCode.OK);
-        } else if ((request.certificationNumber() == null) || request.certificationNumber().isEmpty()) {
-            // 인증번호 없이 아이디 또는 비밀번호만 변경하려는 경우
-            userCommandService.profileSave(userId, request);
-            return ServnowResponse.success(CommonSuccessCode.OK);
-        } else {
-            System.out.println("Controller out");
-            return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+        if (request.email() != null && !request.email().isEmpty()) {
+            if (request.certificationNumber() != null && !request.certificationNumber().isEmpty()) {
+                boolean isValid = emailQueryService.verifyCode(request.email(), request.certificationNumber());
+
+                if (!isValid) {
+                    return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_MISMATCH);
+                }
+                userCommandService.profileSave(userId, request);
+                return ServnowResponse.success(CommonSuccessCode.OK);
+            } else {
+                // 이메일 변경, 인증번호가 없는 경우
+                return ServnowResponse.fail(UserErrorCode.CERTIFICATION_NUMBER_REQUIRED);
+            }
         }
+        // 이메일이 변경되지 않은 경우
+        userCommandService.profileSave(userId, request);
+        return ServnowResponse.success(CommonSuccessCode.OK);
     }
 
     @GetMapping("/users/me/survey/{id}")
-    public ServnowResponse<MySurveysResultResponse> getMySurveysResult(@Parameter (hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId) {
+    public ServnowResponse<MySurveysResultResponse> getMySurveysResult(
+            @Parameter(hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId) {
         MySurveysResultResponse result = resultQueryService.getMySurveysResult(surveyId);
         return ServnowResponse.success(CommonSuccessCode.OK, result);
     }
 
     // 나의 닫ㅂ변
     @GetMapping("/users/me/survey/{id}/answer")
-    public ServnowResponse<UserSurveyAnswerResultResponse> getMyAnswersResult(@Parameter (hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId) {
+    public ServnowResponse<UserSurveyAnswerResultResponse> getMyAnswersResult(
+            @Parameter(hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId) {
         UserSurveyAnswerResultResponse result = resultQueryService.getMyAnswerResult(surveyId, userId);
         return ServnowResponse.success(CommonSuccessCode.OK, result);
     }
 
 
     @PostMapping("/users/me/survey/{id}/memo")
-    public ServnowResponse<Object> saveInsightMemo(@Parameter (hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId, @RequestBody final MySurveysResultMemoRequest request) {
+    public ServnowResponse<Object> saveInsightMemo(@Parameter(hidden = true) @UserId final Long userId,
+                                                   @PathVariable(name = "id") long surveyId, @RequestBody final MySurveysResultMemoRequest request) {
         resultCommandService.saveInsightMemo(surveyId, request);
         return ServnowResponse.success(CommonSuccessCode.OK);
     }
 
     @GetMapping("/users/me/survey/{id}/memo/list")
-    public ServnowResponse<MySurveysResultMemoResponse> getInsightMemo(@Parameter (hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId) {
+    public ServnowResponse<MySurveysResultMemoResponse> getInsightMemo(
+            @Parameter(hidden = true) @UserId final Long userId, @PathVariable(name = "id") long surveyId) {
         MySurveysResultMemoResponse result = resultQueryService.getInsightMemo(surveyId);
         return ServnowResponse.success(CommonSuccessCode.OK, result);
     }
 
     @GetMapping("/users/me/survey") // sort=newest, sort=oldest, sort=participants
-    public ServnowResponse<List<MySurveyResponse>> getMySurveys(@Parameter (hidden = true) @UserId final Long userId, @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
+    public ServnowResponse<List<MySurveyResponse>> getMySurveys(
+            @Parameter(hidden = true) @UserId final Long userId,
+            @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
         List<MySurveyResponse> surveys = surveyQueryService.getMySurveys(userId, sort);
         return ServnowResponse.success(CommonSuccessCode.OK, surveys);
     }
 
     @GetMapping("/users/me/survey/join")
-    public ServnowResponse<List<MySurveyResponse>> getJoinSurveys(@Parameter(hidden = true) @UserId final Long userId,
-                                                                  @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
+    public ServnowResponse<List<MySurveyResponse>> getJoinSurveys(
+            @Parameter(hidden = true) @UserId final Long userId,
+            @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort) {
         List<MySurveyResponse> surveys = resultQueryService.getJoinSurveys(userId, sort);
         return ServnowResponse.success(CommonSuccessCode.OK, surveys);
     }
@@ -153,8 +172,9 @@ public class UserController {
         return ServnowResponse.success(CommonSuccessCode.OK);
     }
 
-    @PatchMapping ("/users/me/survey/memo")
-    public ServnowResponse<Void> updateSurveyMemos(@RequestBody SurveyResultMemosPatchRequest surveyResultMemosPatchRequest) {
+    @PatchMapping("/users/me/survey/memo")
+    public ServnowResponse<Void> updateSurveyMemos(@RequestBody SurveyResultMemosPatchRequest
+                                                           surveyResultMemosPatchRequest) {
         resultCommandService.updateSurveyMemos(surveyResultMemosPatchRequest);
         return ServnowResponse.success(CommonSuccessCode.OK);
     }

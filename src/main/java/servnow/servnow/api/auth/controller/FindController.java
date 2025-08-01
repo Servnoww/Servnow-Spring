@@ -7,7 +7,7 @@ import servnow.servnow.api.dto.ServnowResponse;
 import servnow.servnow.api.dto.login.UserChangePwRequest;
 import servnow.servnow.api.user.dto.request.CertificationNumberRequest;
 import servnow.servnow.api.user.dto.request.EmailDuplicateRequest;
-import servnow.servnow.api.user.service.EmailService;
+import servnow.servnow.api.user.service.EmailQueryService;
 import servnow.servnow.api.user.service.UserCommandService;
 import servnow.servnow.api.user.service.UserQueryService;
 import servnow.servnow.common.code.CommonSuccessCode;
@@ -15,7 +15,6 @@ import servnow.servnow.common.code.LoginErrorCode;
 import servnow.servnow.common.code.UserErrorCode;
 import servnow.servnow.domain.user.model.User;
 import servnow.servnow.domain.user.model.enums.Platform;
-import servnow.servnow.domain.user.repository.UserInfoRepository;
 import servnow.servnow.domain.user.repository.UserRepository;
 
 import java.util.Optional;
@@ -29,6 +28,7 @@ public class FindController {
     private final UserCommandService userCommandService;
     private final UserQueryService userQueryService;
     private final UserRepository userRepository;
+    private final EmailQueryService emailQueryService;
 
     String serialId = null;
     Boolean check = false;
@@ -61,7 +61,9 @@ public class FindController {
 
     @PostMapping("/find/email/certification")
     public ServnowResponse<Object> CertificationNumber(@RequestBody CertificationNumberRequest request) {
-        if (request.certificationNumber().equals(EmailService.ePw)) {
+        boolean isVallid = emailQueryService.verifyCode(request.email(), request.certificationNumber());
+
+        if (isVallid) {
             check = true;
             return ServnowResponse.success(CommonSuccessCode.OK, serialId);
         } else {

@@ -26,7 +26,7 @@ public class UserQueryService {
     private final UserInfoRepository userInfoRepository;
     private final UserRepository userRepository;
     private final UserInfoFinder userInfoFinder;
-    private final EmailService emailService;
+//    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public MyPageResponse getMyPage(final Long userId) {
@@ -58,19 +58,6 @@ public class UserQueryService {
 
     public boolean getSerialIdDuplicate(String serialId) {
         return userRepository.existsBySerialId(serialId);
-    }
-
-    public ServnowResponse<Void> identityVerification(String email) throws Exception {
-        if (emailDuplicate(email)) {
-            return ServnowResponse.fail(UserErrorCode.EMAIL_DUPLICATE);
-        }
-        String confirm = emailService.sendSimpleMessage(email);
-
-        if (confirm.isEmpty()) {
-            return ServnowResponse.fail(UserErrorCode.SEND_CERTIFICATION_NUMBER);
-        } else {
-            return ServnowResponse.success(CommonSuccessCode.OK);
-        }
     }
 
     @Transactional(readOnly = true)

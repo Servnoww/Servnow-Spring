@@ -33,7 +33,7 @@ public class SecurityConfig {
             "/api/v1/auth/kakao", "/api/v1/find/**", "/api/v1/auth/duplicate/id",
             "/v3/api-docs/**", "/swagger-ui/**",
             "/swagger-resources/**", "/api/v1/survey/guest/**",
-            "/api/v1/survey/home", "api/v1/result/guest/**",  "/api/v1/change/pw"};
+            "/api/v1/survey/home", "/api/v1/result/guest/**",  "/api/v1/change/pw"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
